@@ -89,8 +89,8 @@ def ex_box_jaccard(a, b):
     x2 = np.maximum(np.max(a[:,0]), np.max(b[:,0]))
     y1 = np.minimum(np.min(a[:,1]), np.min(b[:,1]))
     y2 = np.maximum(np.max(a[:,1]), np.max(b[:,1]))
-    mask_w = np.int(np.ceil(x2-x1))
-    mask_h = np.int(np.ceil(y2-y1))
+    mask_w = int(np.ceil(x2-x1))
+    mask_h = int(np.ceil(y2-y1))
     mask_a = np.zeros(shape=(mask_h, mask_w), dtype=np.uint8)
     mask_b = np.zeros(shape=(mask_h, mask_w), dtype=np.uint8)
     a[:,0] -= x1
