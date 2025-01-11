@@ -6,7 +6,8 @@ import func_utils
 class EvalModule(object):
     def __init__(self, dataset, num_classes, model, decoder):
         torch.manual_seed(317)
-        self.device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+        self.device = torch.device("mps" if torch.backends.mps.is_available() else ("cuda:0" if torch.cuda.is_available() else "cpu"))        
+        print(self.device)
         self.dataset = dataset
         self.num_classes = num_classes
         self.model = model

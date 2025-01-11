@@ -1,3 +1,0 @@
-left arrow for previous image
-right arrow for next image
-escape for exit

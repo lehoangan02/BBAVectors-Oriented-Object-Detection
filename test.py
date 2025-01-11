@@ -20,7 +20,9 @@ def apply_mask(image, mask, alpha=0.5):
 class TestModule(object):
     def __init__(self, dataset, num_classes, model, decoder):
         torch.manual_seed(317)
-        self.device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+        print(torch.cuda.is_available())
+        self.device = torch.device("mps" if torch.backends.mps.is_available() else ("cuda:0" if torch.cuda.is_available() else "cpu"))        
+        print(self.device)
         self.dataset = dataset
         self.num_classes = num_classes
         self.model = model
@@ -104,8 +106,13 @@ class TestModule(object):
                 pr_decs = self.model(image)
 
             #self.imshow_heatmap(pr_decs[2], image)
-
-            torch.cuda.synchronize(self.device)
+            # lehoangan changed here
+            print(torch.cuda.is_available())
+            print(torch.backends.mps.is_available())
+            if torch.cuda.is_available():
+                torch.cuda.synchronize(self.device)
+            elif torch.backends.mps.is_available():
+                torch.backends.mps.synchronize()
             decoded_pts = []
             decoded_scores = []
             predictions = self.decoder.ctdet_decode(pr_decs)
@@ -164,7 +171,7 @@ class TestModule(object):
                     # cv2.line(ori_image, (int(cen_pts[0]), int(cen_pts[1])), (int(tr[0]), int(tr[1])), (255,0,255),1,1)
                     # cv2.line(ori_image, (int(cen_pts[0]), int(cen_pts[1])), (int(br[0]), int(br[1])), (0,255,0),1,1)
                     # cv2.line(ori_image, (int(cen_pts[0]), int(cen_pts[1])), (int(bl[0]), int(bl[1])), (255,0,0),1,1)
-                    ori_image = cv2.drawContours(ori_image, [np.int0(box)], -1, (255,0,255),1,1)
+                    ori_image = cv2.drawContours(ori_image, [np.int64(box)], -1, (255,0,255),1,1)
                     # box = cv2.boxPoints(cv2.minAreaRect(box))
                     # ori_image = cv2.drawContours(ori_image, [np.int0(box)], -1, (0,255,0),1,1)
                     cv2.putText(ori_image, '{:.2f} {}'.format(score, cat), (int(box[1][0]), int(box[1][1])),

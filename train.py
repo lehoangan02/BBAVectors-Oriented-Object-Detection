@@ -25,7 +25,8 @@ class TrainModule(object):
         self.dataset_phase = {'dota': ['train'],
                               'hrsc': ['train', 'test']}
         self.num_classes = num_classes
-        self.device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+        self.device = torch.device("mps" if torch.backends.mps.is_available() else ("cuda:0" if torch.cuda.is_available() else "cpu"))        
+        print(self.device)
         self.model = model
         self.decoder = decoder
         self.down_ratio = down_ratio
