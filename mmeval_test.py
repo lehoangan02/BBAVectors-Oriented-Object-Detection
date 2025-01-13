@@ -1,7 +1,7 @@
 import numpy as np
-from mmeval import DOTAMetric
+from mmeval import DOTAMeanAP
 num_classes = 15
-dota_metric = DOTAMetric(num_classes=15)
+dota_metric = DOTAMeanAP(num_classes=15)
 def _gen_bboxes(num_bboxes, img_w=256, img_h=256):
     # random generate bounding boxes in 'xywha' formart.
     x = np.random.rand(num_bboxes, ) * img_w
@@ -21,5 +21,5 @@ groundtruth = {
     'bboxes_ignore': _gen_bboxes(5),
     'labels_ignore': np.random.randint(0, num_classes, size=(5, ))
 }
-dota_metric(predictions=[prediction, ], groundtruths=[groundtruth, ])  
+print(dota_metric(predictions=[prediction, ], groundtruths=[groundtruth, ])  )
 {'mAP@0.5': ..., 'mAP': ...}
