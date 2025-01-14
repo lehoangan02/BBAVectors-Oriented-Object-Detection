@@ -26,3 +26,5 @@ Visualizer.zip
 /datasets/__pycache__
 /myEnv
 DOTA608.zip
+/myEnvMPS
+/myEnvCuda
