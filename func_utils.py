@@ -3,7 +3,6 @@ import torch
 import numpy as np
 from datasets.DOTA_devkit.ResultMerge_multi_process import py_cpu_nms_poly_fast, py_cpu_nms_poly
 
-from concurrent.futures import ThreadPoolExecutor, as_completed
 
 def decode_prediction(predictions, dsets, args, img_id, down_ratio):
     predictions = predictions[0, :, :]
@@ -55,33 +54,31 @@ def write_results(args,
                   decoder,
                   result_path,
                   print_ps=False):
-    # Initialize results structure
     results = {cat: {img_id: [] for img_id in dsets.img_ids} for cat in dsets.category}
-
-    def process_single_item(index):
+    for index in range(len(dsets)):
         data_dict = dsets.__getitem__(index)
         image = data_dict['image'].to(device)
         img_id = data_dict['img_id']
+        image_w = data_dict['image_w']
+        image_h = data_dict['image_h']
+
         with torch.no_grad():
             pr_decs = model(image)
 
+
         decoded_pts = []
         decoded_scores = []
-
-        # Ensure proper synchronization for GPU/MPS computations
+        # lehoangan changed here
         if torch.cuda.is_available():
             torch.cuda.synchronize(device)
         elif torch.backends.mps.is_available():
             torch.mps.synchronize()
-
-        # Decode predictions
         predictions = decoder.ctdet_decode(pr_decs)
         pts0, scores0 = decode_prediction(predictions, dsets, args, img_id, down_ratio)
         decoded_pts.append(pts0)
         decoded_scores.append(scores0)
 
-        # Prepare single result
-        single_result = {}
+        # nms
         for cat in dsets.category:
             if cat == 'background':
                 continue
@@ -94,26 +91,15 @@ def write_results(args,
             scores_cat = np.asarray(scores_cat, np.float32)
             if pts_cat.shape[0]:
                 nms_results = non_maximum_suppression(pts_cat, scores_cat)
-                single_result[cat] = {img_id: nms_results}
-        return single_result
+                results[cat][img_id].extend(nms_results)
+        if print_ps:
+            
+            print('testing {}/{} data {}'.format(index+1, len(dsets), img_id))
 
-    # Thread-safe updates using ThreadPoolExecutor
-    with ThreadPoolExecutor(max_workers=os.cpu_count()) as executor:
-        futures = [executor.submit(process_single_item, index) for index in range(len(dsets))]
-        for idx, future in enumerate(as_completed(futures)):
-            single_result = future.result()
-            # Update results in a thread-safe manner
-            for cat in single_result:
-                results[cat].update(single_result[cat])
-            if print_ps:
-                print(f'Testing {idx + 1}/{len(dsets)}')
-
-    # Write results to files
     for cat in dsets.category:
         if cat == 'background':
             continue
-        cat_result_path = os.path.join(result_path, f'Task1_{cat}.txt')
-        with open(cat_result_path, 'w') as f:
+        with open(os.path.join(result_path, 'Task1_{}.txt'.format(cat)), 'w') as f:
             for img_id in results[cat]:
                 for pt in results[cat][img_id]:
                     f.write('{} {:.12f} {:.1f} {:.1f} {:.1f} {:.1f} {:.1f} {:.1f} {:.1f} {:.1f}\n'.format(
