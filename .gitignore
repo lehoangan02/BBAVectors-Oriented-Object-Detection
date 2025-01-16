@@ -103,3 +103,9 @@ datasets/__pycache__/transforms.cpython-310.pyc
 datasets/__pycache__/transforms.cpython-312.pyc
 /merge_dota
 /result_dota
+/datasets/Bridge
+/datasets/DOTA608
+/datasets/DOTA_V1.0_Split
+/datasets/Validate
+/datasets/MiniTrainV1.1
+/datasets/MiniTrainV1
