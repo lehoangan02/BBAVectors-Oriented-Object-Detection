@@ -101,3 +101,5 @@ datasets/__pycache__/hrsc_evaluation_task1.cpython-310.pyc
 datasets/__pycache__/hrsc_evaluation_task1.cpython-312.pyc
 datasets/__pycache__/transforms.cpython-310.pyc
 datasets/__pycache__/transforms.cpython-312.pyc
+/merge_dota
+/result_dota

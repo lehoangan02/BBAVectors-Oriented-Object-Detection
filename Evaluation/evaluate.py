@@ -1,28 +1,18 @@
 import numpy as np
 from mmeval import DOTAMeanAP
 from mmeval import Accuracy
+import argparse
 
 result_path = 'Task1_bridge.txt'
 truth_path = 'annoBridge.txt'
 
-# class ImageResult:
-#     def __init__(self, image_id):
-#         self.image_id = image_id
-#         self.bboxes = []
-#         self.confidences = []
-#     def add_result(self, bbox, confidence):
-#         self.bboxes.append(bbox)
-#         self.confidences.append(confidence)
-#     def get_result(self):
-#         return self.bboxes, self.confidences
-#     def evaluate(self):
-#         stacked_bboxes = np.stack(self.bboxes, axis=0)
-#         prediciton = {
-#             'bboxes': stacked_bboxes,
-#             'scores': np.array(self.confidences),
-#             'labels': np.ones(len(self.confidences))
-#         }
-#         ground
+def parse_args():
+    parser = argparse.ArgumentParser(description='Evaluate the result')
+    parser.add_argument('--result_path', type=str, default='Task1_bridge.txt', help='Path to the result file')
+    parser.add_argument('--truth_path', type=str, default='annoBridge.txt', help='Path to the truth file')
+    parser.add_argument('--save_path', type=str, default='result.txt', help='Path to save the mAP result')
+    args = parser.parse_args()
+    return args
 
 def parse_result(line):
     parts = line.split(' ')
@@ -62,33 +52,29 @@ def read_truth(truth_path):
         label_list.append(0)
     return image_id_list, bbox_list, label_list
 
-image_id_list, confidence_list, bbox_list = read_result(result_path)
-image_id_list_truth, bbox_list_truth, label_list_truth = read_truth(truth_path)
+if __name__ == '__main__':
 
-print(len(confidence_list))
-print(len(bbox_list))
-print(len(bbox_list_truth))
+    args = parse_args()
+    image_id_list, confidence_list, bbox_list = read_result(result_path)
+    image_id_list_truth, bbox_list_truth, label_list_truth = read_truth(truth_path)
 
-print(bbox_list[0])
-print(confidence_list[0])
-print(bbox_list_truth[0])
-# print(bbox_list[1])
-# print(confidence_list[1])
-# print(bbox_list_truth[1])
+    prediction = {
+        'bboxes': np.stack(bbox_list, axis=0),
+        'scores': np.ones(len(confidence_list)),
+        'labels': np.zeros(len(confidence_list))
+    }
+    groundtruth = {
+        'bboxes': np.stack(bbox_list_truth, axis=0),
+        'labels': np.zeros(len(label_list_truth)),
+        'bboxes_ignore': np.zeros((0, 8)),
+        'labels_ignore': np.zeros((0, ))
+    }
 
-prediction = {
-    'bboxes': np.stack(bbox_list, axis=0),
-    'scores': np.ones(len(confidence_list)),
-    'labels': np.zeros(len(confidence_list))
-}
-groundtruth = {
-    'bboxes': np.stack(bbox_list_truth, axis=0),
-    'labels': np.zeros(len(label_list_truth)),
-    'bboxes_ignore': np.zeros((0, 8)),
-    'labels_ignore': np.zeros((0, ))
-}
-
-accuracy = DOTAMeanAP(num_classes=1)
-result = accuracy(predictions=[prediction, ], groundtruths=[groundtruth, ])
-print(result)
+    accuracy = DOTAMeanAP(num_classes=1)
+    result = accuracy(predictions=[prediction, ], groundtruths=[groundtruth, ])
+    print(result)
+    with open(args.save_path, 'w') as f:
+        f.write(str(result))
+    print('Result saved to', args.save_path)
+    print('Done')
 
