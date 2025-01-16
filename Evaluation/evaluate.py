@@ -55,8 +55,8 @@ def read_truth(truth_path):
 if __name__ == '__main__':
 
     args = parse_args()
-    image_id_list, confidence_list, bbox_list = read_result(result_path)
-    image_id_list_truth, bbox_list_truth, label_list_truth = read_truth(truth_path)
+    image_id_list, confidence_list, bbox_list = read_result(args.result_path)
+    image_id_list_truth, bbox_list_truth, label_list_truth = read_truth(args.truth_path)
 
     prediction = {
         'bboxes': np.stack(bbox_list, axis=0),
