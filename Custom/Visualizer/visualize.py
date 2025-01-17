@@ -12,14 +12,12 @@ root = None
 # Function to display the image with OpenCV
 def display_image_with_bounding_boxes():
     # print(f"Displaying image: {image_path}")
-    
-    # boxes = read_boxes('./result_dota608/Task1_bridge.txt')  # Read boxes when button is clicked
-    boxes = read_boxes('./result_dota/Task1_bridge.txt')
+    boxes = read_boxes('./Task1_bridge.txt')
     image_boxes = boxes[currentImage]  # Get bounding boxes for the image
     # Display the image with bounding boxes
     for box in [image_boxes]:
         # imagepath = './images/' + box['image'] + '.png'
-        imagepath = './datasets/DOTA_devkit/MiniTrain/images/' + box['image'] + '.png'
+        imagepath = './../../datasets/Validate/images/' + box['image'] + '.png'
         
         image = cv2.imread(imagepath)
         points = box['points']

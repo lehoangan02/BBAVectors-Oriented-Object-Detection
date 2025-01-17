@@ -109,3 +109,5 @@ datasets/__pycache__/transforms.cpython-312.pyc
 /datasets/Validate
 /datasets/MiniTrainV1.1
 /datasets/MiniTrainV1
+/datasets/ValidateSplit
+datasets/ValidateSplit.zip

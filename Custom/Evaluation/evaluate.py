@@ -42,15 +42,17 @@ def parse_truth(line):
 def read_truth(truth_path):
     with open(truth_path, 'r') as f:
         lines = f.readlines()
-    image_id_list = []
+    class_tring_list = []
     bbox_list = []
     label_list = []
     for line in lines:
         bbox, class_string, difficulty = parse_truth(line)
-        image_id_list.append(class_string)
-        bbox_list.append(bbox)
-        label_list.append(0)
-    return image_id_list, bbox_list, label_list
+        if class_string == 'bridge':
+            class_tring_list.append(class_string)
+            bbox_list.append(bbox)
+            label_list.append(0)
+    print('Truth has', len(bbox_list), 'bridges')
+    return class_tring_list, bbox_list, label_list
 
 if __name__ == '__main__':
 
@@ -58,7 +60,7 @@ if __name__ == '__main__':
     print('Evaluating', args.result_path)
     print('Using ground truth', args.truth_path)
     image_id_list, confidence_list, bbox_list = read_result(args.result_path)
-    image_id_list_truth, bbox_list_truth, label_list_truth = read_truth(args.truth_path)
+    class_tring_list_truth, bbox_list_truth, label_list_truth = read_truth(args.truth_path)
 
     prediction = {
         'bboxes': np.stack(bbox_list, axis=0),
