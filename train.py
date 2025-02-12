@@ -127,13 +127,13 @@ class TrainModule(object):
         ap_list = []
         for epoch in range(start_epoch, args.num_epoch+1):
             print('-'*10)
+            print(f"Dataset length: {len(dsets['train'])}")
             print('Epoch: {}/{} '.format(epoch, args.num_epoch))
             epoch_loss = self.run_epoch(phase='train',
                                         data_loader=dsets_loader['train'],
                                         criterion=criterion)
             train_loss.append(epoch_loss)
             self.scheduler.step(epoch)
-
             np.savetxt(os.path.join(save_path, 'train_loss.txt'), train_loss, fmt='%.6f')
 
             if epoch % 5 == 0 or epoch > 20:
@@ -158,6 +158,7 @@ class TrainModule(object):
         else:
             self.model.eval()
         running_loss = 0.
+        
         for data_dict in data_loader:
             for name in data_dict:
                 data_dict[name] = data_dict[name].to(device=self.device, non_blocking=True)
