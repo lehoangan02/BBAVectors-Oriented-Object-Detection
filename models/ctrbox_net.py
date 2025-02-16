@@ -11,8 +11,8 @@ class CTRBOX(nn.Module):
         channels = [3, 64, 256, 512, 1024, 2048]
         assert down_ratio in [2, 4, 8, 16]
         self.l1 = int(np.log2(down_ratio))
-        self.base_network = densenet.densenet121(pretrained=pretrained)
-        # self.base_network = resnet.resnet152(pretrained=pretrained)
+        # self.base_network = densenet.densenet121(pretrained=pretrained)
+        self.base_network = resnet.resnet152(pretrained=pretrained)
 
         self.dec_c2 = CombinationModule(512, 256, batch_norm=True)
         self.dec_c3 = CombinationModule(1024, 512, batch_norm=True)
