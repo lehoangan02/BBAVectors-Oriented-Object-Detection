@@ -113,3 +113,7 @@ datasets/__pycache__/transforms.cpython-312.pyc
 datasets/ValidateSplit.zip
 *.DS_Store
 /datasets/BridgeTrainFull
+/datasets/GLH_5_Percent
+/datasets/GLH_5_Percent_1
+datasets/GLH_5_Percent_0.5/GLH_5_Percent_0.5.zip
+/datasets/GLH_5_Percent_0.5
