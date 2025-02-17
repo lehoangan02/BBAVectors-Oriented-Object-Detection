@@ -1,5 +1,15 @@
 #!/bin/bash
 
+# Things you need to change:
+# 1. data_dir: Path to the directory containing the validation data
+# 2. model_dir: Path to the directory containing the model weights
+
+# How to run:
+# Make sure you are using Git bash if you are on Windows
+# cd Custom/Scripts
+# chmod +x evaluate_models.sh
+# ./evaluate_models.sh
+
 # Define variables
 data_dir="./datasets/your_validation_data"
 # Directory structure:
