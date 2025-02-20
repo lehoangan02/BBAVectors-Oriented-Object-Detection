@@ -11,7 +11,7 @@
 # ./evaluate_models.sh
 
 # Define variables
-data_dir="./datasets/Validate_DOTA_1_0.5"
+data_dir="./datasets/your_validation_data"
 # Directory structure:
 # -|datasets
 # ---|your_validation_data
@@ -21,7 +21,7 @@ conf_thresh=0.1
 batch_size=16
 dataset="dota"
 phase="eval"
-model_dir="10_Percent"
+model_dir="your_model_weights"
 # Directory structure:
 # -|weights_dota
 # ---| your_model_weights
@@ -33,13 +33,12 @@ eval_dir="datasets/DOTA_devkit"
 result_dir="Result"
 # A folder named "Result" will be created in the current directory to store the evaluation results
 
-# Array of model epochs to evaluate
-epochs=(2 3 4 5)
-cd ../..
-
 # Create the result directory if it doesn't exist
 mkdir -p "$result_dir"
 
+# Array of model epochs to evaluate
+epochs=(5 10 15 20 25 30 35 40 45 50)
+cd ../..
 # Loop through the epochs and run the evaluation
 for epoch in "${epochs[@]}"; do
     model_path="${model_dir}/model_${epoch}.pth"

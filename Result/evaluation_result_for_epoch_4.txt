@@ -1,0 +1,50 @@
+classname: plane
+No detections found.
+ap:  0
+classname: baseball-diamond
+No detections found.
+ap:  0
+classname: bridge
+check tp [1. 1. 1. ... 0. 0. 0.]
+npos num: 1162
+ap:  0.22800730925376345
+classname: ground-track-field
+No detections found.
+ap:  0
+classname: small-vehicle
+No detections found.
+ap:  0
+classname: large-vehicle
+No detections found.
+ap:  0
+classname: ship
+No detections found.
+ap:  0
+classname: tennis-court
+No detections found.
+ap:  0
+classname: basketball-court
+No detections found.
+ap:  0
+classname: storage-tank
+No detections found.
+ap:  0
+classname: soccer-ball-field
+No detections found.
+ap:  0
+classname: roundabout
+No detections found.
+ap:  0
+classname: harbor
+No detections found.
+ap:  0
+classname: swimming-pool
+No detections found.
+ap:  0
+classname: helicopter
+No detections found.
+ap:  0
+map: 0.01520048728358423
+classaps:  [ 0.          0.         22.80073093  0.          0.          0.
+  0.          0.          0.          0.          0.          0.
+  0.          0.          0.        ]

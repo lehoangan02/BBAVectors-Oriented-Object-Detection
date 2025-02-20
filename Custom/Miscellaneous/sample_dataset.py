@@ -2,7 +2,7 @@ import os
 import shutil
 import random
 
-def select_random_subset(dataset_path, output_path, percentage=3):
+def select_random_subset(dataset_path, output_path, percentage=10):
     images_path = os.path.join(dataset_path, "images")
     labels_path = os.path.join(dataset_path, "labelTxt")
     
@@ -31,5 +31,5 @@ def select_random_subset(dataset_path, output_path, percentage=3):
 
 if __name__ == "__main__":
     dataset_path = "./../../datasets/BridgeTrainFull"  # Change this to your dataset path
-    output_path = "./../../datasets/GLH_5_Percent"  # Change this to your desired output folder
+    output_path = "./../../datasets/GLH_10_Percent"  # Change this to your desired output folder
     select_random_subset(dataset_path, output_path)
