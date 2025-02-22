@@ -27,8 +27,8 @@ def display_image_with_bounding_boxes():
     
     # Show the image
     cv2.imshow(WindowName, image)
-    x = 400
-    y = 200
+    x = 100
+    y = 000
     cv2.moveWindow(WindowName, x, y)    
     # Wait for key press or window close
     key = cv2.waitKey(1)  # Non-blocking check for key press
