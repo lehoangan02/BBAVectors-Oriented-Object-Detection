@@ -9,13 +9,13 @@ class DecDecoder(object):
 
     def _topk(self, scores):
         batch, cat, height, width = scores.size()
-
+        # calculate top k for each class
         topk_scores, topk_inds = torch.topk(scores.view(batch, cat, -1), self.K)
 
         topk_inds = topk_inds % (height * width)
         topk_ys = (topk_inds // width).int().float()
         topk_xs = (topk_inds % width).int().float()
-
+        # calculate top k for all classes of the chosen top k for each class
         topk_score, topk_ind = torch.topk(topk_scores.view(batch, -1), self.K)
         topk_clses = (topk_ind // self.K).int()
         topk_inds = self._gather_feat( topk_inds.view(batch, -1, 1), topk_ind).view(batch, self.K)
