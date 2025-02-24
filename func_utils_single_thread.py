@@ -3,7 +3,6 @@ import torch
 import numpy as np
 from datasets.DOTA_devkit.ResultMerge_multi_process import py_cpu_nms_poly_fast, py_cpu_nms_poly
 
-
 def decode_prediction(predictions, dsets, args, img_id, down_ratio):
     predictions = predictions[0, :, :]
     ori_image = dsets.load_image(dsets.img_ids.index(img_id))
@@ -93,7 +92,7 @@ def write_results(args,
                 nms_results = non_maximum_suppression(pts_cat, scores_cat)
                 results[cat][img_id].extend(nms_results)
         if print_ps:
-            
+
             print('testing {}/{} data {}'.format(index+1, len(dsets), img_id))
 
     for cat in dsets.category:
