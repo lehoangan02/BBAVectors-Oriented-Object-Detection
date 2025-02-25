@@ -22,13 +22,13 @@ class CTRBOX(nn.Module):
         for head in self.heads:
             classes = self.heads[head]
             if head == 'wh':
-                fc = nn.Sequential(nn.Conv2d(channels[self.l1], head_conv, kernel_size=3, padding=1, bias=True),
+                fc = nn.Sequential(nn.Conv2d(channels[self.l1], head_conv, kernel_size=7, padding=3, bias=True),
                                    nn.BatchNorm2d(head_conv),   # BN not used in the paper, but would help stable training
                                    nn.ReLU(inplace=True),
-                                   nn.Conv2d(head_conv, classes, kernel_size=3, padding=1, bias=True))
+                                   nn.Conv2d(head_conv, classes, kernel_size=7, padding=3, bias=True))
             else:
                 fc = nn.Sequential(nn.Conv2d(channels[self.l1], head_conv, kernel_size=3, padding=1, bias=True),
-                                   nn.BatchNorm2d(head_conv),   # BN not used in the paper, but would help stable training
+                                #    nn.BatchNorm2d(head_conv),   # BN not used in the paper, but would help stable training
                                    nn.ReLU(inplace=True),
                                    nn.Conv2d(head_conv, classes, kernel_size=final_kernel, stride=1, padding=final_kernel // 2, bias=True))
             if 'hm' in head:
@@ -52,6 +52,8 @@ class CTRBOX(nn.Module):
         #     temp = x[1][0,idx,:,:]
         #     temp = temp.data.cpu().numpy()
         #     plt.imsave(os.path.join('dilation', '{}.png'.format(idx)), temp)
+
+
         c4_combine = self.dec_c4(x[-1], x[-2])
         c3_combine = self.dec_c3(c4_combine, x[-3])
         c2_combine = self.dec_c2(c3_combine, x[-4])
@@ -59,6 +61,7 @@ class CTRBOX(nn.Module):
         dec_dict = {}
         for head in self.heads:
             dec_dict[head] = self.__getattr__(head)(c2_combine)
+            # dec_dict[head] = self.__getattr__(head)(x[self.l1])
             if 'hm' in head or 'cls' in head:
                 dec_dict[head] = torch.sigmoid(dec_dict[head])
         return dec_dict
