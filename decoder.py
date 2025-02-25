@@ -9,15 +9,29 @@ class DecDecoder(object):
 
     def _topk(self, scores):
         batch, cat, height, width = scores.size()
-
+        # calculate top k for each class
         topk_scores, topk_inds = torch.topk(scores.view(batch, cat, -1), self.K)
+        #topk_scores shape: [batch, cat, K]
+        #topk_inds shape: [batch, cat, K]
 
         topk_inds = topk_inds % (height * width)
         topk_ys = (topk_inds // width).int().float()
         topk_xs = (topk_inds % width).int().float()
-
+        # calculate top k for all classes of the chosen top k for each class
         topk_score, topk_ind = torch.topk(topk_scores.view(batch, -1), self.K)
+        #topk_score shape: [batch, K]
+        #topk_ind shape: [batch, K]
+
+        print(f"topk_score size: {topk_score.size()}")
+        print(f"topk_ind size: {topk_ind.size()}")
+
         topk_clses = (topk_ind // self.K).int()
+        #topk_clses shape: [batch, K]
+
+
+        #topk_inds.view(batch, -1, 1) shape: [batch, cat*K, 1]
+        #topk_ys.view(batch, -1, 1) shape: [batch, cat*K, 1]
+        #topk_xs.view(batch, -1, 1) shape: [batch, cat*K, 1]
         topk_inds = self._gather_feat( topk_inds.view(batch, -1, 1), topk_ind).view(batch, self.K)
         topk_ys = self._gather_feat(topk_ys.view(batch, -1, 1), topk_ind).view(batch, self.K)
         topk_xs = self._gather_feat(topk_xs.view(batch, -1, 1), topk_ind).view(batch, self.K)
@@ -31,9 +45,14 @@ class DecDecoder(object):
         return heat * keep
 
     def _gather_feat(self, feat, ind, mask=None):
+        #feat shape: [batch, cat*K]
         dim = feat.size(2)
+        #dim = 1
+        #ind shape: [batch, K]
+        #ind.unsqueeze(2) shape: [batch, K, 1]
+        #ind.unsqueeze(2).expand(ind.size(0), ind.size(1), dim) shape: [batch, K,  1]
         ind = ind.unsqueeze(2).expand(ind.size(0), ind.size(1), dim)
-        feat = feat.gather(1, ind)
+        feat = torch.gather(feat, 1, ind) #shape: [batch, K, 1], gather the top K scores for each class
         if mask is not None:
             mask = mask.unsqueeze(2).expand_as(feat)
             feat = feat[mask]
