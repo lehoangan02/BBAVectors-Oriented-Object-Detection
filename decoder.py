@@ -13,6 +13,8 @@ class DecDecoder(object):
         topk_scores, topk_inds = torch.topk(scores.view(batch, cat, -1), self.K)
         #topk_scores shape: [batch, cat, K]
         #topk_inds shape: [batch, cat, K]
+        #topk_scores shape: [batch, cat, K]
+        #topk_inds shape: [batch, cat, K]
 
         topk_inds = topk_inds % (height * width)
         topk_ys = (topk_inds // width).int().float()
@@ -51,6 +53,9 @@ class DecDecoder(object):
         #ind shape: [batch, K]
         #ind.unsqueeze(2) shape: [batch, K, 1]
         #ind.unsqueeze(2).expand(ind.size(0), ind.size(1), dim) shape: [batch, K,  1]
+        #dim = cat*K
+        #ind shape: [batch, K]
+        
         ind = ind.unsqueeze(2).expand(ind.size(0), ind.size(1), dim)
         feat = torch.gather(feat, 1, ind) #shape: [batch, K, 1], gather the top K scores for each class
         if mask is not None:
