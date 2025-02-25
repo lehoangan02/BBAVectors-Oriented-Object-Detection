@@ -11,16 +11,30 @@ class DecDecoder(object):
         batch, cat, height, width = scores.size()
 
         topk_scores, topk_inds = torch.topk(scores.view(batch, cat, -1), self.K)
+        #topk_scores shape: [batch, cat, K]
+        #topk_inds shape: [batch, cat, K]
 
         topk_inds = topk_inds % (height * width)
         topk_ys = (topk_inds // width).int().float()
         topk_xs = (topk_inds % width).int().float()
 
         topk_score, topk_ind = torch.topk(topk_scores.view(batch, -1), self.K)
-        topk_clses = (topk_ind // self.K).int()
-        topk_inds = self._gather_feat( topk_inds.view(batch, -1, 1), topk_ind).view(batch, self.K)
-        topk_ys = self._gather_feat(topk_ys.view(batch, -1, 1), topk_ind).view(batch, self.K)
-        topk_xs = self._gather_feat(topk_xs.view(batch, -1, 1), topk_ind).view(batch, self.K)
+        #topk_score shape: [batch, K]
+        #topk_ind shape: [batch, K]
+
+        print(f"topk_score size: {topk_score.size()}")
+        print(f"topk_ind size: {topk_ind.size()}")
+
+        topk_clses = (topk_ind // self.K).int() #calculate the class index for each top k score
+        #topk_clses shape: [batch, K]
+
+
+        #topk_inds.view(batch, -1, 1) shape: [batch, cat*K, 1]
+        #topk_ys.view(batch, -1, 1) shape: [batch, cat*K, 1]
+        #topk_xs.view(batch, -1, 1) shape: [batch, cat*K, 1]
+        topk_inds = self._gather_feat(topk_inds.view(batch, -1, 1), topk_ind).view(batch, self.K) #gather the top K indices for each class
+        topk_ys = self._gather_feat(topk_ys.view(batch, -1, 1), topk_ind).view(batch, self.K) #gather the top K y coordinates for each class
+        topk_xs = self._gather_feat(topk_xs.view(batch, -1, 1), topk_ind).view(batch, self.K) #gather the top K x coordinates for each class
 
         return topk_score, topk_inds, topk_clses, topk_ys, topk_xs
 
@@ -31,9 +45,14 @@ class DecDecoder(object):
         return heat * keep
 
     def _gather_feat(self, feat, ind, mask=None):
+        #feat shape: [batch, cat*K, 1]
         dim = feat.size(2)
+        #dim = 1
+        #ind shape: [batch, K]
+        #ind.unsqueeze(2) shape: [batch, K, 1]
+        #ind.unsqueeze(2).expand(ind.size(0), ind.size(1), dim) shape: [batch, K,  1]
         ind = ind.unsqueeze(2).expand(ind.size(0), ind.size(1), dim)
-        feat = feat.gather(1, ind)
+        feat = torch.gather(feat, 1, ind) #shape: [batch, K, 1], gather the top K scores for each class
         if mask is not None:
             mask = mask.unsqueeze(2).expand_as(feat)
             feat = feat[mask]
