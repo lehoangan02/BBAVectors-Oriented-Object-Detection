@@ -47,11 +47,12 @@ class DecDecoder(object):
     def _gather_feat(self, feat, ind, mask=None):
         #feat shape: [batch, cat*K]
         dim = feat.size(2)
-        #dim = cat*K
+        #dim = 1
         #ind shape: [batch, K]
-        
+        #ind.unsqueeze(2) shape: [batch, K, 1]
+        #ind.unsqueeze(2).expand(ind.size(0), ind.size(1), dim) shape: [batch, K,  1]
         ind = ind.unsqueeze(2).expand(ind.size(0), ind.size(1), dim)
-        feat = feat.gather(1, ind)
+        feat = torch.gather(feat, 1, ind) #shape: [batch, K, 1], gather the top K scores for each class
         if mask is not None:
             mask = mask.unsqueeze(2).expand_as(feat)
             feat = feat[mask]

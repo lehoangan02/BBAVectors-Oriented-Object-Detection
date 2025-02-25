@@ -4,6 +4,8 @@ import torch
 from .model_parts import CombinationModule
 from . import resnet
 from . import densenet
+from . import fpn
+from . import Mini_Inception as mini_inception
 
 class CTRBOX(nn.Module):
     def __init__(self, heads, pretrained, down_ratio, final_kernel, head_conv):
@@ -12,7 +14,8 @@ class CTRBOX(nn.Module):
         assert down_ratio in [2, 4, 8, 16]
         self.l1 = int(np.log2(down_ratio))
         # self.base_network = densenet.densenet121(pretrained=pretrained)
-        self.base_network = resnet.resnet101(pretrained=pretrained)
+        self.base_network = resnet.resnet152(pretrained=pretrained)
+        # self.base_network = fpn.FPN101()
 
         self.dec_c2 = CombinationModule(512, 256, batch_norm=True)
         self.dec_c3 = CombinationModule(1024, 512, batch_norm=True)
@@ -22,7 +25,9 @@ class CTRBOX(nn.Module):
         for head in self.heads:
             classes = self.heads[head]
             if head == 'wh':
-                fc = nn.Sequential(nn.Conv2d(channels[self.l1], head_conv, kernel_size=7, padding=3, bias=True),
+                fc = nn.Sequential(mini_inception.MiniInception(),
+                                   nn.ReLU(inplace=True),
+                                   nn.Conv2d(channels[self.l1], head_conv, kernel_size=3, padding=1, bias=True),
                                    nn.BatchNorm2d(head_conv),   # BN not used in the paper, but would help stable training
                                    nn.ReLU(inplace=True),
                                    nn.Conv2d(head_conv, classes, kernel_size=7, padding=3, bias=True))
