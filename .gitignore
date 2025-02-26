@@ -148,3 +148,5 @@ datasets/Validate_1_0.5_600_100.zip
 datasets/BridgeTrain.zip
 /Result
 /Custom/Evaluation
+Custom/Scripts/evaluate_models.sh
+/Trainval
