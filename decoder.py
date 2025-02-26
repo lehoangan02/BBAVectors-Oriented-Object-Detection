@@ -24,8 +24,8 @@ class DecDecoder(object):
         #topk_score shape: [batch, K]
         #topk_ind shape: [batch, K]
 
-        print(f"topk_score size: {topk_score.size()}")
-        print(f"topk_ind size: {topk_ind.size()}")
+        # print(f"topk_score size: {topk_score.size()}")
+        # print(f"topk_ind size: {topk_ind.size()}")
 
         topk_clses = (topk_ind // self.K).int()
         #topk_clses shape: [batch, K]
