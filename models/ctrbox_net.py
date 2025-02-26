@@ -146,7 +146,8 @@ class CTRBOX_Inception(nn.Module):
         assert down_ratio in [2, 4, 8, 16]
         self.l1 = int(np.log2(down_ratio))
         # self.base_network = densenet.densenet121(pretrained=pretrained)
-        self.base_network = resnet.resnet101(pretrained=pretrained)
+        self.base_network = resnet.resnet152(pretrained=pretrained)
+        # self.base_network = fpn.FPN101()
 
         self.dec_c2 = CombinationModule(512, 256, batch_norm=True)
         self.dec_c3 = CombinationModule(1024, 512, batch_norm=True)
@@ -173,8 +174,7 @@ class CTRBOX_Inception(nn.Module):
                 self.fill_fc_weights(fc)
 
             self.__setattr__(head, fc)
-        # x = self.base_network()
-        # print_layers.print_layers(self)
+
 
     def fill_fc_weights(self, m):
         if isinstance(m, nn.Conv2d):
@@ -183,9 +183,6 @@ class CTRBOX_Inception(nn.Module):
 
     def forward(self, x):
         x = self.base_network(x)
-        # for idx, layer in enumerate(x):
-            # print('layer {} shape: {}'.format(idx, layer
-                                            #   .shape))
         # import matplotlib.pyplot as plt
         # import os
         # for idx in range(x[1].shape[1]):
@@ -197,15 +194,13 @@ class CTRBOX_Inception(nn.Module):
         c4_combine = self.dec_c4(x[-1], x[-2])
         c3_combine = self.dec_c3(c4_combine, x[-3])
         c2_combine = self.dec_c2(c3_combine, x[-4])
-        # print('c2_combine shape: ', c2_combine.shape)
 
         dec_dict = {}
         for head in self.heads:
             dec_dict[head] = self.__getattr__(head)(c2_combine)
+            # dec_dict[head] = self.__getattr__(head)(x[self.l1])
             if 'hm' in head or 'cls' in head:
                 dec_dict[head] = torch.sigmoid(dec_dict[head])
-        # for dec in dec_dict:
-        #     print(dec, dec_dict[dec].shape)
         return dec_dict
 class CTRBOX_FPN(nn.Module):
     def __init__(self, heads, pretrained, down_ratio, final_kernel, head_conv):
