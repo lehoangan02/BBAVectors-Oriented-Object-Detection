@@ -242,7 +242,7 @@ class CTRBOX_FPN(nn.Module):
 
     def forward(self, x):
         x = self.base_network(x)
-        print('result shape: ', x[0].shape)
+        # print('result shape: ', x[0].shape)
         # for idx, layer in enumerate(x):
             # print('layer {} shape: {}'.format(idx, layer
                                             #   .shape))
