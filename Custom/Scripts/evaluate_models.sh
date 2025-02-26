@@ -39,6 +39,7 @@ epochs=(1 2 3 4 5 6 7 8 9 10)
 cd ../..
 
 # Create the result directory if it doesn't exist
+mkdir -p "Result"
 mkdir -p "$result_dir"
 
 # Loop through the epochs and run the evaluation
