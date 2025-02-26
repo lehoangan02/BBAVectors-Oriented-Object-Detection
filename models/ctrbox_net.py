@@ -173,7 +173,6 @@ class CTRBOX_FPN(nn.Module):
                 self.fill_fc_weights(fc)
 
             self.__setattr__(head, fc)
-        # x = self.base_network()
         # print_layers.print_layers(self)
 
     def fill_fc_weights(self, m):
@@ -183,6 +182,7 @@ class CTRBOX_FPN(nn.Module):
 
     def forward(self, x):
         x = self.base_network(x)
+        print('result shape: ', x[0].shape)
         # for idx, layer in enumerate(x):
             # print('layer {} shape: {}'.format(idx, layer
                                             #   .shape))
@@ -196,6 +196,68 @@ class CTRBOX_FPN(nn.Module):
         dec_dict = {}
         for head in self.heads:
             dec_dict[head] = self.__getattr__(head)(x[0])
+            if 'hm' in head or 'cls' in head:
+                dec_dict[head] = torch.sigmoid(dec_dict[head])
+        # for dec in dec_dict:
+        #     print(dec, dec_dict[dec].shape)
+        return dec_dict
+class CTRBOX_DenseNet(nn.Module):
+    def __init__(self, heads, pretrained, down_ratio, final_kernel, head_conv):
+        super().__init__()
+        channels = [3, 64, 256, 512, 1024, 2048]
+        assert down_ratio in [2, 4, 8, 16]
+        self.l1 = int(np.log2(down_ratio))
+        # self.base_network = torch.hub.load('pytorch/vision:v0.10.0', 'densenet121', pretrained=True)
+        self.base_network = densenet.densenetMini()
+        self.adapter_layer = nn.Sequential(nn.Conv2d(492, 256, kernel_size=1, stride=1, padding=0, bias=False),
+                                           nn.BatchNorm2d(256),
+                                           nn.ReLU(inplace=True))
+        self.heads = heads
+
+        for head in self.heads:
+            classes = self.heads[head]
+            if head == 'wh':
+                fc = nn.Sequential(mini_inception.MiniInception(),
+                                   nn.ReLU(inplace=True),
+                                   nn.Conv2d(channels[self.l1], head_conv, kernel_size=7, padding=3, bias=True),
+                                   nn.BatchNorm2d(head_conv),   # BN not used in the paper, but would help stable training
+                                   nn.ReLU(inplace=True),
+                                   nn.Conv2d(head_conv, classes, kernel_size=7, padding=3, bias=True))
+            else:
+                fc = nn.Sequential(nn.Conv2d(channels[self.l1], head_conv, kernel_size=3, padding=1, bias=True),
+                                   nn.BatchNorm2d(head_conv),   # BN not used in the paper, but would help stable training
+                                   nn.ReLU(inplace=True),
+                                   nn.Conv2d(head_conv, classes, kernel_size=final_kernel, stride=1, padding=final_kernel // 2, bias=True))
+            if 'hm' in head:
+                fc[-1].bias.data.fill_(-2.19)
+            else:
+                self.fill_fc_weights(fc)
+
+            self.__setattr__(head, fc)
+        # print_layers.print_layers(self)
+
+    def fill_fc_weights(self, m):
+        if isinstance(m, nn.Conv2d):
+            if m.bias is not None:
+                nn.init.constant_(m.bias, 0)
+
+    def forward(self, x):
+        x = self.base_network(x)
+        print('result shape: ', x[-1].shape)
+        x = self.adapter_layer(x[-1])
+        # for idx, layer in enumerate(x):
+            # print('layer {} shape: {}'.format(idx, layer
+                                            #   .shape))
+        # import matplotlib.pyplot as plt
+        # import os
+        # for idx in range(x[1].shape[1]):
+        #     temp = x[1][0,idx,:,:]
+        #     temp = temp.data.cpu().numpy()
+        #     plt.imsave(os.path.join('dilation', '{}.png'.format(idx)), temp)
+
+        dec_dict = {}
+        for head in self.heads:
+            dec_dict[head] = self.__getattr__(head)(x)
             if 'hm' in head or 'cls' in head:
                 dec_dict[head] = torch.sigmoid(dec_dict[head])
         # for dec in dec_dict:

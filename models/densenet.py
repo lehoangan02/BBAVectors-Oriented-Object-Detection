@@ -131,15 +131,20 @@ class DenseNet3(nn.Module):
         x = self.relu(x)
         feat.append(x)  # C5
 
-        x = F.adaptive_avg_pool2d(x, (1, 1))
-        x = torch.flatten(x, 1)
-        x = self.fc(x)
+        # NOT USED
+        # x = F.adaptive_avg_pool2d(x, (1, 1))
+        # x = torch.flatten(x, 1)
+        # x = self.fc(x)
 
         return feat
 
 def _densenet(depth, num_classes, growth_rate, reduction, bottleneck, dropRate):
     return DenseNet3(depth, num_classes, growth_rate, reduction, bottleneck, dropRate)
 
+def densenetMini(dropRate=0.0):
+    # num_classes is not used
+    return _densenet(depth=45, num_classes=13, growth_rate=12,
+                    reduction=1.0, bottleneck=False, dropRate=0.0)
 def densenet121(pretrained=False, progess=True, **kwargs):
     if pretrained:
         num_classes = 1000
