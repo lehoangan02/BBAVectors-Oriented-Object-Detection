@@ -242,7 +242,7 @@ class CTRBOX_FPN(nn.Module):
 
     def forward(self, x):
         x = self.base_network(x)
-        print('result shape: ', x[0].shape)
+        # print('result shape: ', x[0].shape)
         # for idx, layer in enumerate(x):
             # print('layer {} shape: {}'.format(idx, layer
                                             #   .shape))
@@ -303,7 +303,7 @@ class CTRBOX_DenseNet(nn.Module):
 
     def forward(self, x):
         x = self.base_network(x)
-        print('result shape: ', x[-1].shape)
+        # print('result shape: ', x[-1].shape)
         x = self.adapter_layer(x[-1])
         # for idx, layer in enumerate(x):
             # print('layer {} shape: {}'.format(idx, layer
