@@ -694,10 +694,16 @@ class EfficientNetV2(nn.Module):
 
     def forward(self, x):
         x = self.stem_act(self.stem_bn(self.stem_conv(x)))
-        for block in self.blocks:
+        # print(f"Number of blocks: {len(self.blocks)}")
+        features = []
+        to_be_combined = [3, 11, 36, 99] # last layers of each stage with the same number of channels
+        for enum, block in enumerate(self.blocks):
             x = block(x)
-        x = self.head_act(self.head_bn(self.head_conv(x)))
-        x = self.dropout(torch.flatten(self.avpool(x), 1))
-        x = self.fc(x)
+            if enum in to_be_combined:
+                features.append(x)
+        
+        # x = self.head_act(self.head_bn(self.head_conv(x)))
+        # x = self.dropout(torch.flatten(self.avpool(x), 1))
+        # x = self.fc(x)
 
-        return x
+        return features

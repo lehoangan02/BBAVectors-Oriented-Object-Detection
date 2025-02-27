@@ -50,9 +50,9 @@ class CTRBOX_Origin(nn.Module):
 
     def forward(self, x):
         x = self.base_network(x)
-        # for idx, layer in enumerate(x):
-            # print('layer {} shape: {}'.format(idx, layer
-                                            #   .shape))
+        for idx, layer in enumerate(x):
+            print('layer {} shape: {}'.format(idx, layer
+                                              .shape))
         # import matplotlib.pyplot as plt
         # import os
         # for idx in range(x[1].shape[1]):
@@ -273,6 +273,9 @@ class CTRBOX_DenseNet(nn.Module):
         self.adapter_layer = nn.Sequential(nn.Conv2d(492, 256, kernel_size=1, stride=1, padding=0, bias=False),
                                            nn.BatchNorm2d(256),
                                            nn.ReLU(inplace=True))
+        self.dec_c2 = CombinationModule(512, 256, batch_norm=True)
+        self.dec_c3 = CombinationModule(1024, 512, batch_norm=True)
+        self.dec_c4 = CombinationModule(2048, 1024, batch_norm=True)
         self.heads = heads
 
         for head in self.heads:
@@ -322,17 +325,19 @@ class CTRBOX_EfficientNetV2(nn.Module):
         assert down_ratio in [2, 4, 8, 16]
         self.l1 = int(np.log2(down_ratio))
         # self.base_network = torch.hub.load('pytorch/vision:v0.10.0', 'densenet121', pretrained=True)
-        self.base_network = efficientnet_v2.EfficientNetV2('s',
+        self.base_network = efficientnet_v2.EfficientNetV2('xl',
                         in_channels=3,
                         n_classes=256,
                         pretrained=True)
-        self.adapter_layer = nn.Sequential(nn.ConvTranspose2d(256, 256, kernel_size=8, stride=8, padding=0, bias=False),
-                                        nn.BatchNorm2d(256),
+        self.adapter_layer = nn.Sequential(nn.Conv2d(32, 64, kernel_size=7, stride=2, padding=3, bias=False),
+                                        nn.BatchNorm2d(64),
                                         nn.ReLU(inplace=True),
-                                        nn.ConvTranspose2d(256, 256, kernel_size=19, stride=19, padding=0, bias=False),
+                                        nn.Conv2d(64, 256, kernel_size=3, stride=1, padding=1, bias=False),
                                         nn.BatchNorm2d(256),
                                         nn.ReLU(inplace=True))
-                                        
+        self.dec_c2 = CombinationModule(64, 32, batch_norm=True)
+        self.dec_c3 = CombinationModule(256, 64, batch_norm=True)
+        self.dec_c4 = CombinationModule(640, 256, batch_norm=True)                                
         self.heads = heads
 
         for head in self.heads:
@@ -364,13 +369,13 @@ class CTRBOX_EfficientNetV2(nn.Module):
 
     def forward(self, x):
         x = self.base_network(x)
-        x = x.unsqueeze(2).unsqueeze(3)
-        print('result shape: ', x.shape)
-        x = self.adapter_layer(x)
-        print('result shape: ', x.shape)
+        c4_combine = self.dec_c4(x[-1], x[-2])
+        c3_combine = self.dec_c3(c4_combine, x[-3])
+        c2_combine = self.dec_c2(c3_combine, x[-4])
+        c2_combine = self.adapter_layer(c2_combine)
         dec_dict = {}
         for head in self.heads:
-            dec_dict[head] = self.__getattr__(head)(x)
+            dec_dict[head] = self.__getattr__(head)(c2_combine)
             if 'hm' in head or 'cls' in head:
                 dec_dict[head] = torch.sigmoid(dec_dict[head])
         # for dec in dec_dict:
