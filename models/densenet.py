@@ -1,3 +1,4 @@
+# https://github.com/andreasveit/densenet-pytorch/blob/master/densenet.py
 import math
 import torch
 import torch.nn as nn
