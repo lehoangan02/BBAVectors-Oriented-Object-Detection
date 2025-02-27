@@ -35,7 +35,7 @@ result_dir="Result/badf"
 # A folder named "Result" will be created in the current directory to store the evaluation results
 
 # Array of model epochs to evaluate
-epochs=(1 2 3 4 5 6 7 8 9 10)
+epochs=(7 6 5 4 3 2)
 
 # Create the result directory if it doesn't exist
 mkdir -p "$result_dir"
