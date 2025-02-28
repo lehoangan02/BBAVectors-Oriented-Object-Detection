@@ -5,6 +5,7 @@ import numpy as np
 import loss
 import cv2
 import func_utils
+from datasets.dataset_dota import DOTA
 
 
 def collater(data):
@@ -106,13 +107,12 @@ class TrainModule(object):
 
         dataset_module = self.dataset[args.dataset]
 
-        dsets = {x: dataset_module(data_dir=args.data_dir,
+        dsets = {x: DOTA(data_dir=args.data_dir,
                                    phase=x,
                                    input_h=args.input_h,
                                    input_w=args.input_w,
                                    down_ratio=self.down_ratio)
                  for x in self.dataset_phase[args.dataset]}
-
         dsets_loader = {}
         dsets_loader['train'] = torch.utils.data.DataLoader(dsets['train'],
                                                            batch_size=args.batch_size,

@@ -162,6 +162,9 @@ class BaseDataset(data.Dataset):
 
         hm = np.zeros((self.num_classes, image_h, image_w), dtype=np.float32)
         wh = np.zeros((self.max_objs, 10), dtype=np.float32)
+
+        corners = np.zeros((self.max_objs, 8), dtype=np.float32) # lehoangan added this
+
         ## add
         cls_theta = np.zeros((self.max_objs, 1), dtype=np.float32)
         ## add end
@@ -200,6 +203,14 @@ class BaseDataset(data.Dataset):
 
             if theta in [-90.0, -0.0, 0.0]:  # (-90, 0]
                 tt,rr,bb,ll = self.reorder_pts(tt,rr,bb,ll)
+
+            # lehoangan added this
+            corners[k, 0:2] = tt
+            corners[k, 2:4] = rr
+            corners[k, 4:6] = bb
+            corners[k, 6:8] = ll
+            ################################################################################
+            
             # rotational channel
             wh[k, 0:2] = tt - ct
             wh[k, 2:4] = rr - ct
@@ -249,6 +260,7 @@ class BaseDataset(data.Dataset):
                'wh': wh,
                'reg': reg,
                'cls_theta':cls_theta,
+                'corners': corners
                }
         return ret
 
