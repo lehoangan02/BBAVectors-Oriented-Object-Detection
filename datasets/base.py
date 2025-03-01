@@ -203,19 +203,21 @@ class BaseDataset(data.Dataset):
 
             if theta in [-90.0, -0.0, 0.0]:  # (-90, 0]
                 tt,rr,bb,ll = self.reorder_pts(tt,rr,bb,ll)
+                tl, tr, br, bl = self.reorder_pts(tl, tr, br, bl)
+                
 
             # lehoangan added this
-            corners[k, 0:2] = tt
-            corners[k, 2:4] = rr
-            corners[k, 4:6] = bb
-            corners[k, 6:8] = ll
+            corners[k, 0:2] = bl - ct
+            corners[k, 2:4] = tl - ct
+            corners[k, 4:6] = tr - ct
+            corners[k, 6:8] = br - ct
             ################################################################################
             
             # rotational channel
-            wh[k, 0:2] = tt - ct
-            wh[k, 2:4] = rr - ct
-            wh[k, 4:6] = bb - ct
-            wh[k, 6:8] = ll - ct
+            wh[k, 0:2] = tt - ct # top
+            wh[k, 2:4] = rr - ct # right
+            wh[k, 4:6] = bb - ct # bottom
+            wh[k, 6:8] = ll - ct # left
             #####################################################################################
             # # draw
             # cv2.line(copy_image1, (cen_x, cen_y), (int(tt[0]), int(tt[1])), (0, 0, 255), 1, 1)

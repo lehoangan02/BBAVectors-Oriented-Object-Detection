@@ -129,13 +129,13 @@ class LossAll(torch.nn.Module):
             print('off loss is {}'.format(off_loss))
             print('corners loss is {}'.format(corners_loss))
 
-        print(f"hm_loss: {hm_loss.item()}")
-        print(f"wh_loss: {wh_loss.item()}")
-        print(f"off_loss: {off_loss.item()}")
-        print(f"cls_theta_loss: {cls_theta_loss.item()}")
-        if 'corners' in pr_decs:
-            print(f"corners_loss: {corners_loss.item()}")
-        print('-----------------')
+        # print(f"hm_loss: {hm_loss.item()}")
+        # print(f"wh_loss: {wh_loss.item()}")
+        # print(f"off_loss: {off_loss.item()}")
+        # print(f"cls_theta_loss: {cls_theta_loss.item()}")
+        # if 'corners' in pr_decs:
+        #     print(f"corners_loss: {corners_loss.item()}")
+        # print('-----------------')
 
         loss =  hm_loss + wh_loss + off_loss + cls_theta_loss+corners_loss
         return loss

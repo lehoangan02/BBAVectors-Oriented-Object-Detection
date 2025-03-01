@@ -22,7 +22,7 @@ conf_thresh=0.1
 batch_size=16
 dataset="dota"
 phase="eval"
-model_dir="c6a5"
+model_dir="e81f"
 # Directory structure:
 # -|weights_dota
 # ---| your_model_weights
@@ -31,7 +31,7 @@ model_dir="c6a5"
 # -----| ...
 eval_script="dota_evaluation_task1.py"
 eval_dir="datasets/DOTA_devkit"
-result_dir="Result/c6a5"
+result_dir="Result/e81f"
 # A folder named "Result" will be created in the current directory to store the evaluation results
 
 # Array of model epochs to evaluate
