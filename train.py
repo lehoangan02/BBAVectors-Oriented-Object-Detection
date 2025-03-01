@@ -6,6 +6,7 @@ import loss
 import cv2
 import func_utils
 from datasets.dataset_dota import DOTA
+import torch_xla.core.xla_model as xm
 
 
 def collater(data):
@@ -26,7 +27,15 @@ class TrainModule(object):
         self.dataset_phase = {'dota': ['train'],
                               'hrsc': ['train', 'test']}
         self.num_classes = num_classes
-        self.device = torch.device("mps" if torch.backends.mps.is_available() else ("cuda:0" if torch.cuda.is_available() else "cpu"))        
+        # setting device
+        if torch.backends.mps.is_available():
+            self.device = torch.device("mps")
+        elif torch.cuda.is_available():
+            self.device = torch.device("cuda:0")
+        elif xm.xla_device() != None:
+            self.device = xm.xla_device()
+        else:
+            self.device = torch.device("cpu")
         print(self.device)
         self.model = model
         self.decoder = decoder
