@@ -9,8 +9,6 @@ from datasets.dataset_dota import DOTA
 # import torch_xla.core.xla_model as xm
 # import TestDevice.testtpu as testtpu
 
-print(testtpu.is_tpu_available())
-
 def collater(data):
     out_data_dict = {}
     for name in data[0]:
