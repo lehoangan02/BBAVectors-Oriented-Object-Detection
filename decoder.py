@@ -9,32 +9,34 @@ class DecDecoder(object):
 
     def _topk(self, scores):
         batch, cat, height, width = scores.size()
-
+        # calculate top k for each class
         topk_scores, topk_inds = torch.topk(scores.view(batch, cat, -1), self.K)
+        #topk_scores shape: [batch, cat, K]
+        #topk_inds shape: [batch, cat, K]
         #topk_scores shape: [batch, cat, K]
         #topk_inds shape: [batch, cat, K]
 
         topk_inds = topk_inds % (height * width)
         topk_ys = (topk_inds // width).int().float()
         topk_xs = (topk_inds % width).int().float()
-
+        # calculate top k for all classes of the chosen top k for each class
         topk_score, topk_ind = torch.topk(topk_scores.view(batch, -1), self.K)
         #topk_score shape: [batch, K]
         #topk_ind shape: [batch, K]
 
-        print(f"topk_score size: {topk_score.size()}")
-        print(f"topk_ind size: {topk_ind.size()}")
+        # print(f"topk_score size: {topk_score.size()}")
+        # print(f"topk_ind size: {topk_ind.size()}")
 
-        topk_clses = (topk_ind // self.K).int() #calculate the class index for each top k score
+        topk_clses = (topk_ind // self.K).int()
         #topk_clses shape: [batch, K]
 
 
         #topk_inds.view(batch, -1, 1) shape: [batch, cat*K, 1]
         #topk_ys.view(batch, -1, 1) shape: [batch, cat*K, 1]
         #topk_xs.view(batch, -1, 1) shape: [batch, cat*K, 1]
-        topk_inds = self._gather_feat(topk_inds.view(batch, -1, 1), topk_ind).view(batch, self.K) #gather the top K indices for each class
-        topk_ys = self._gather_feat(topk_ys.view(batch, -1, 1), topk_ind).view(batch, self.K) #gather the top K y coordinates for each class
-        topk_xs = self._gather_feat(topk_xs.view(batch, -1, 1), topk_ind).view(batch, self.K) #gather the top K x coordinates for each class
+        topk_inds = self._gather_feat( topk_inds.view(batch, -1, 1), topk_ind).view(batch, self.K)
+        topk_ys = self._gather_feat(topk_ys.view(batch, -1, 1), topk_ind).view(batch, self.K)
+        topk_xs = self._gather_feat(topk_xs.view(batch, -1, 1), topk_ind).view(batch, self.K)
 
         return topk_score, topk_inds, topk_clses, topk_ys, topk_xs
 
@@ -45,12 +47,15 @@ class DecDecoder(object):
         return heat * keep
 
     def _gather_feat(self, feat, ind, mask=None):
-        #feat shape: [batch, cat*K, 1]
+        #feat shape: [batch, cat*K]
         dim = feat.size(2)
         #dim = 1
         #ind shape: [batch, K]
         #ind.unsqueeze(2) shape: [batch, K, 1]
         #ind.unsqueeze(2).expand(ind.size(0), ind.size(1), dim) shape: [batch, K,  1]
+        #dim = cat*K
+        #ind shape: [batch, K]
+        
         ind = ind.unsqueeze(2).expand(ind.size(0), ind.size(1), dim)
         feat = torch.gather(feat, 1, ind) #shape: [batch, K, 1], gather the top K scores for each class
         if mask is not None:
@@ -88,6 +93,17 @@ class DecDecoder(object):
         cls_theta = cls_theta.view(batch, self.K, 1)
         mask = (cls_theta>0.8).float().view(batch, self.K, 1)
         #
+        # wh shape: [batch, K, 10]
+        # 0:1: tt_x
+        # 1:2: tt_y
+        # 2:3: rr_x
+        # 3:4: rr_y
+        # 4:5: bb_x
+        # 5:6: bb_y
+        # 6:7: ll_x
+        # 7:8: ll_y
+        # 8:9: w
+        # 9:10: h
         tt_x = (xs+wh[..., 0:1])*mask + (xs)*(1.-mask)
         tt_y = (ys+wh[..., 1:2])*mask + (ys-wh[..., 9:10]/2)*(1.-mask)
         rr_x = (xs+wh[..., 2:3])*mask + (xs+wh[..., 8:9]/2)*(1.-mask)

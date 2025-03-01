@@ -68,7 +68,11 @@ def write_results(args,
 
         decoded_pts = []
         decoded_scores = []
-        torch.cuda.synchronize(device)
+        # lehoangan changed here
+        if torch.cuda.is_available():
+            torch.cuda.synchronize(device)
+        elif torch.backends.mps.is_available():
+            torch.mps.synchronize()
         predictions = decoder.ctdet_decode(pr_decs)
         pts0, scores0 = decode_prediction(predictions, dsets, args, img_id, down_ratio)
         decoded_pts.append(pts0)
@@ -89,6 +93,7 @@ def write_results(args,
                 nms_results = non_maximum_suppression(pts_cat, scores_cat)
                 results[cat][img_id].extend(nms_results)
         if print_ps:
+            
             print('testing {}/{} data {}'.format(index+1, len(dsets), img_id))
 
     for cat in dsets.category:

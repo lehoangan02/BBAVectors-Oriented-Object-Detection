@@ -5,6 +5,7 @@ import numpy as np
 import loss
 import cv2
 import func_utils
+from datasets.dataset_dota import DOTA
 
 
 def collater(data):
@@ -25,7 +26,8 @@ class TrainModule(object):
         self.dataset_phase = {'dota': ['train'],
                               'hrsc': ['train', 'test']}
         self.num_classes = num_classes
-        self.device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+        self.device = torch.device("mps" if torch.backends.mps.is_available() else ("cuda:0" if torch.cuda.is_available() else "cpu"))        
+        print(self.device)
         self.model = model
         self.decoder = decoder
         self.down_ratio = down_ratio
@@ -105,13 +107,12 @@ class TrainModule(object):
 
         dataset_module = self.dataset[args.dataset]
 
-        dsets = {x: dataset_module(data_dir=args.data_dir,
+        dsets = {x: DOTA(data_dir=args.data_dir,
                                    phase=x,
                                    input_h=args.input_h,
                                    input_w=args.input_w,
                                    down_ratio=self.down_ratio)
                  for x in self.dataset_phase[args.dataset]}
-
         dsets_loader = {}
         dsets_loader['train'] = torch.utils.data.DataLoader(dsets['train'],
                                                            batch_size=args.batch_size,
@@ -126,16 +127,16 @@ class TrainModule(object):
         ap_list = []
         for epoch in range(start_epoch, args.num_epoch+1):
             print('-'*10)
+            print(f"Dataset length: {len(dsets['train'])}")
             print('Epoch: {}/{} '.format(epoch, args.num_epoch))
             epoch_loss = self.run_epoch(phase='train',
                                         data_loader=dsets_loader['train'],
                                         criterion=criterion)
             train_loss.append(epoch_loss)
-            self.scheduler.step(epoch)
-
+            self.scheduler.step()
             np.savetxt(os.path.join(save_path, 'train_loss.txt'), train_loss, fmt='%.6f')
 
-            if epoch % 5 == 0 or epoch > 20:
+            if epoch % 5 == 0 or epoch > 1:
                 self.save_model(os.path.join(save_path, 'model_{}.pth'.format(epoch)),
                                 epoch,
                                 self.model,
@@ -146,7 +147,7 @@ class TrainModule(object):
                 ap_list.append(mAP)
                 np.savetxt(os.path.join(save_path, 'ap_list.txt'), ap_list, fmt='%.6f')
 
-            self.save_model(os.path.join(save_path, 'model_last.pth'),
+            self.save_model(os.path.join(save_path, 'model_{}.pth'.format(epoch)),
                             epoch,
                             self.model,
                             self.optimizer)
@@ -157,6 +158,7 @@ class TrainModule(object):
         else:
             self.model.eval()
         running_loss = 0.
+        
         for data_dict in data_loader:
             for name in data_dict:
                 data_dict[name] = data_dict[name].to(device=self.device, non_blocking=True)
