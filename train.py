@@ -6,7 +6,7 @@ import loss
 import cv2
 import func_utils
 from datasets.dataset_dota import DOTA
-import torch_xla.core.xla_model as xm
+# import torch_xla.core.xla_model as xm
 import TestDevice.testtpu as testtpu
 
 print(testtpu.is_tpu_available())
@@ -34,9 +34,9 @@ class TrainModule(object):
             self.device = torch.device("mps")
         elif torch.cuda.is_available():
             self.device = torch.device("cuda:0")
-        elif xm.xla_device() != None:
-            print('Using TPU')
-            self.device = xm.xla_device()
+        # elif xm.xla_device() != None:
+        #     print('Using TPU')
+        #     self.device = xm.xla_device()
         else:
             self.device = torch.device("cpu")
         print(self.device)
