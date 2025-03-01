@@ -139,3 +139,5 @@ datasets/part1-001.zip
 datasets/Validate_1_0.5_600_100.zip
 /mpsre
 *.xml
+/Custom/Evaluation
+/Result
