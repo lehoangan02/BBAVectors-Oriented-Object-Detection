@@ -47,8 +47,41 @@ class ViTExtractor(torch.nn.Module):
                 param.requires_grad = False
             for param in self.encoder.parameters():
                 param.requires_grad = False
+
+        # Convolutions for multi-scale feature maps
+        # 1/4 scale
+        self.conv1 = torch.nn.Sequential(
+            torch.nn.ConvTranspose2d(768, 256, kernel_size=8, stride=4, padding=2),
+            # torch.nn.BatchNorm2d(256),
+            torch.nn.LayerNorm([152, 152]),
+            torch.nn.GELU()
+        )
+        # 1/8 scale
+        self.conv2 = torch.nn.Sequential(
+            torch.nn.ConvTranspose2d(768, 512, kernel_size=4, stride=2, padding=1),
+            # torch.nn.BatchNorm2d(512),
+            torch.nn.LayerNorm([76, 76]),
+            torch.nn.GELU()
+        )
+        # 1/16 scale
+        self.conv3 = torch.nn.Sequential(
+            torch.nn.Conv2d(768, 1024, kernel_size=3, stride=1, padding=1),
+            # torch.nn.BatchNorm2d(1024),
+            torch.nn.LayerNorm([38, 38]),
+            torch.nn.GELU()
+        )
+        # 1/32 scale
+        self.conv4 = torch.nn.Sequential(
+            torch.nn.Conv2d(768, 2048, kernel_size=3, stride=2, padding=1),
+            # torch.nn.BatchNorm2d(2048),
+            torch.nn.LayerNorm([19, 19]),
+            torch.nn.GELU()
+        )
     
     def forward(self, x):
+        # Scale image_size to 224
+        x = torch.nn.functional.interpolate(x, size=(224, 224), mode='bilinear', align_corners=False)
+
         # (batch_size, channels, image_size, image_size) --> (batch_size, 1 + num_patches, hidden_dim)
         x = self.feature_extractor(x)
         x = self.vit.encoder.dropout(x)
@@ -62,5 +95,22 @@ class ViTExtractor(torch.nn.Module):
         grid_size = int(num_tokens ** 0.5)  # 14 for 196 patches
         feature_map = features.reshape(batch_size, grid_size, grid_size, hidden_dim)
         feature_map = feature_map.permute(0, 3, 1, 2)  # (batch_size, hidden_dim, grid_size, grid_size)
+
+        # Scale to 38x38
+        feature_map = torch.nn.functional.interpolate(feature_map, size=(38, 38), mode='bilinear', align_corners=False)
+
+        # Create feature maps
+        feat = []
+        feat.append(self.conv1(feature_map))
+        feat.append(self.conv2(feature_map))
+        feat.append(self.conv3(feature_map))
+        feat.append(self.conv4(feature_map))
         
-        return feature_map
+        return feat
+
+# Example usage:
+if __name__ == "__main__":
+    model = ViTExtractor(pretrained=True, freeze_backbone=True)
+    dummy_input = torch.randn(1, 3, 224, 224)
+    fmap = model(dummy_input)
+    print("Feature map shape:", fmap.shape)  # Expected: (1, 768, 14, 14)
