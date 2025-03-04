@@ -150,4 +150,6 @@ datasets/BridgeTrain.zip
 /Custom/Evaluation
 Custom/Scripts/evaluate_models.sh
 /Trainval
+/Custom/Evaluation
+/Result
 /tpu
