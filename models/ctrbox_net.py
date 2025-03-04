@@ -8,7 +8,7 @@ from . import fpn
 from . import Mini_Inception as mini_inception
 from . import print_layers
 from . import efficientnet_v2
-class CTRBOX_Origin(nn.Module):
+class CTRBOX_Github(nn.Module):
     def __init__(self, heads, pretrained, down_ratio, final_kernel, head_conv):
         super().__init__()
         channels = [3, 64, 256, 512, 1024, 2048]
