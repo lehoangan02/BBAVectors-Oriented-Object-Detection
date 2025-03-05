@@ -83,6 +83,9 @@ class FocalLoss(nn.Module):
 
         neg_weights = torch.pow(1 - gt, 4)
 
+        # Clamp pred to avoid log(0) or log(negative)
+        pred = torch.clamp(pred, min=1e-6, max=1-1e-6)
+
         loss = 0
         #   print('pred size is {}'.format(pred.size()))
         #   print('pos_inds size is {}'.format(pos_inds.size()))
