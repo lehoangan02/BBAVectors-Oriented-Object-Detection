@@ -52,31 +52,39 @@ class ViTExtractor(torch.nn.Module):
         # 1/4 scale
         self.conv1 = torch.nn.Sequential(
             torch.nn.ConvTranspose2d(768, 256, kernel_size=8, stride=4, padding=2),
-            # torch.nn.BatchNorm2d(256),
-            torch.nn.LayerNorm([152, 152]),
-            torch.nn.GELU()
+            torch.nn.BatchNorm2d(256),
+            # torch.nn.LayerNorm([152, 152]),
+            torch.nn.ReLU()
         )
         # 1/8 scale
         self.conv2 = torch.nn.Sequential(
             torch.nn.ConvTranspose2d(768, 512, kernel_size=4, stride=2, padding=1),
-            # torch.nn.BatchNorm2d(512),
-            torch.nn.LayerNorm([76, 76]),
-            torch.nn.GELU()
+            torch.nn.BatchNorm2d(512),
+            # torch.nn.LayerNorm([76, 76]),
+            torch.nn.ReLU()
         )
         # 1/16 scale
         self.conv3 = torch.nn.Sequential(
             torch.nn.Conv2d(768, 1024, kernel_size=3, stride=1, padding=1),
-            # torch.nn.BatchNorm2d(1024),
-            torch.nn.LayerNorm([38, 38]),
-            torch.nn.GELU()
+            torch.nn.BatchNorm2d(1024),
+            # torch.nn.LayerNorm([38, 38]),
+            torch.nn.ReLU()
         )
         # 1/32 scale
         self.conv4 = torch.nn.Sequential(
             torch.nn.Conv2d(768, 2048, kernel_size=3, stride=2, padding=1),
-            # torch.nn.BatchNorm2d(2048),
-            torch.nn.LayerNorm([19, 19]),
-            torch.nn.GELU()
+            torch.nn.BatchNorm2d(2048),
+            # torch.nn.LayerNorm([19, 19]),
+            torch.nn.ReLU()
         )
+
+        # Initialize multi-scale feature map convolutions
+        for conv in [self.conv1, self.conv2, self.conv3, self.conv4]:
+            for layer in conv:
+                if isinstance(layer, torch.nn.Conv2d) or isinstance(layer, torch.nn.ConvTranspose2d):
+                    torch.nn.init.kaiming_normal_(layer.weight, mode='fan_out', nonlinearity='relu')
+                    if layer.bias is not None:
+                        torch.nn.init.constant_(layer.bias, 0)
     
     def forward(self, x):
         # Scale image_size to 224
