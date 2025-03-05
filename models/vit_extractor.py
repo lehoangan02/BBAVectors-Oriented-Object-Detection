@@ -78,13 +78,13 @@ class ViTExtractor(torch.nn.Module):
             torch.nn.ReLU()
         )
 
-        # Initialize multi-scale feature map convolutions
-        for conv in [self.conv1, self.conv2, self.conv3, self.conv4]:
-            for layer in conv:
-                if isinstance(layer, torch.nn.Conv2d) or isinstance(layer, torch.nn.ConvTranspose2d):
-                    torch.nn.init.kaiming_normal_(layer.weight, mode='fan_out', nonlinearity='relu')
-                    if layer.bias is not None:
-                        torch.nn.init.constant_(layer.bias, 0)
+        # # Initialize multi-scale feature map convolutions
+        # for conv in [self.conv1, self.conv2, self.conv3, self.conv4]:
+        #     for layer in conv:
+        #         if isinstance(layer, torch.nn.Conv2d) or isinstance(layer, torch.nn.ConvTranspose2d):
+        #             torch.nn.init.kaiming_normal_(layer.weight, mode='fan_out', nonlinearity='relu')
+        #             if layer.bias is not None:
+        #                 torch.nn.init.constant_(layer.bias, 0)
     
     def forward(self, x):
         # Scale image_size to 224
