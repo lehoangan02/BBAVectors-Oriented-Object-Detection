@@ -90,6 +90,7 @@ class TrainModule(object):
                                                                         self.optimizer, 
                                                                         args.resume_train, 
                                                                         strict=True)
+            start_epoch += 1
         # end 
 
         if not os.path.exists(save_path):
