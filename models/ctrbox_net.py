@@ -377,8 +377,8 @@ class CTRBOX_ViT(nn.Module):
         #     temp = temp.data.cpu().numpy()
         #     plt.imsave(os.path.join('dilation', '{}.png'.format(idx)), temp)
 
-        for feature in x:
-            print('feature shape: ', feature.shape)
+        # for feature in x:
+        #     print('feature shape: ', feature.shape)
 
         c4_combine = self.dec_c4(x[-1], x[-2])
         c3_combine = self.dec_c3(c4_combine, x[-3])
