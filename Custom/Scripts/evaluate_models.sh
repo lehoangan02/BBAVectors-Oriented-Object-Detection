@@ -22,7 +22,7 @@ conf_thresh=0.1
 batch_size=16
 dataset="dota"
 phase="eval"
-model_dir="badf"
+model_dir="vit"
 # Directory structure:
 # -|weights_dota
 # ---| your_model_weights
@@ -31,11 +31,11 @@ model_dir="badf"
 # -----| ...
 eval_script="dota_evaluation_task1.py"
 eval_dir="datasets/DOTA_devkit"
-result_dir="Result/badf"
+result_dir="Result/vit"
 # A folder named "Result" will be created in the current directory to store the evaluation results
 
 # Array of model epochs to evaluate
-epochs=(5 4 3 2)
+epochs=(5 4 3 2 1)
 
 # Create the result directory if it doesn't exist
 mkdir -p "$result_dir"

@@ -74,30 +74,40 @@ class OffSmoothL1Loss(nn.Module):
             return 0.
 
 class FocalLoss(nn.Module):
-  def __init__(self):
-    super(FocalLoss, self).__init__()
+    def __init__(self):
+        super(FocalLoss, self).__init__()
 
-  def forward(self, pred, gt):
-      pos_inds = gt.eq(1).float()
-      neg_inds = gt.lt(1).float()
+    def forward(self, pred, gt):
+        pos_inds = gt.eq(1).float()
+        neg_inds = gt.lt(1).float()
 
-      neg_weights = torch.pow(1 - gt, 4)
+        neg_weights = torch.pow(1 - gt, 4)
 
-      loss = 0
-    #   print('pred size is {}'.format(pred.size()))
-    #   print('pos_inds size is {}'.format(pos_inds.size()))
-      pos_loss = torch.log(pred) * torch.pow(1 - pred, 2) * pos_inds
-      neg_loss = torch.log(1 - pred) * torch.pow(pred, 2) * neg_weights * neg_inds
+        loss = 0
+        #   print('pred size is {}'.format(pred.size()))
+        #   print('pos_inds size is {}'.format(pos_inds.size()))
+        pos_loss = torch.log(pred) * torch.pow(1 - pred, 2) * pos_inds
+        neg_loss = torch.log(1 - pred) * torch.pow(pred, 2) * neg_weights * neg_inds
 
-      num_pos  = pos_inds.float().sum()
-      pos_loss = pos_loss.sum()
-      neg_loss = neg_loss.sum()
+        num_pos  = pos_inds.float().sum()
+        pos_loss = pos_loss.sum()
+        neg_loss = neg_loss.sum()
 
-      if num_pos == 0:
-        loss = loss - neg_loss
-      else:
-        loss = loss - (pos_loss + neg_loss) / num_pos
-      return loss
+        if num_pos == 0:
+            loss = loss - neg_loss
+        else:
+            loss = loss - (pos_loss + neg_loss) / num_pos
+
+        # Check for NaN values
+        if torch.isnan(loss):
+            print("NaN detected in FocalLoss")
+            print(f"pred: {pred}")
+            print(f"gt: {gt}")
+            print(f"pos_loss: {pos_loss}")
+            print(f"neg_loss: {neg_loss}")
+            print(f"num_pos: {num_pos}")
+
+        return loss
 
 def isnan(x):
     return x != x
