@@ -46,7 +46,7 @@ class DOTA(BaseDataset):
 
     def load_img_ids(self):
         if self.phase == 'train':
-            image_set_index_file = os.path.join(self.data_dir, '/kaggle/input/trainval/trainval.txt')
+            image_set_index_file = os.path.join(self.data_dir, 'trainval.txt')
         else:
             image_set_index_file = os.path.join(self.data_dir, self.phase + '.txt')
         assert os.path.exists(image_set_index_file), 'Path does not exist: {}'.format(image_set_index_file)
