@@ -93,6 +93,17 @@ class DecDecoder(object):
         cls_theta = cls_theta.view(batch, self.K, 1)
         mask = (cls_theta>0.8).float().view(batch, self.K, 1)
         #
+        # wh shape: [batch, K, 10]
+        # 0:1: tt_x
+        # 1:2: tt_y
+        # 2:3: rr_x
+        # 3:4: rr_y
+        # 4:5: bb_x
+        # 5:6: bb_y
+        # 6:7: ll_x
+        # 7:8: ll_y
+        # 8:9: w
+        # 9:10: h
         tt_x = (xs+wh[..., 0:1])*mask + (xs)*(1.-mask)
         tt_y = (ys+wh[..., 1:2])*mask + (ys-wh[..., 9:10]/2)*(1.-mask)
         rr_x = (xs+wh[..., 2:3])*mask + (xs+wh[..., 8:9]/2)*(1.-mask)

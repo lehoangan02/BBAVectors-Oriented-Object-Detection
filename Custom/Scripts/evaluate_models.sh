@@ -38,6 +38,7 @@ result_dir="Result/vit"
 epochs=(5 4 3 2 1)
 
 # Create the result directory if it doesn't exist
+mkdir -p "Result"
 mkdir -p "$result_dir"
 
 # Loop through the epochs and run the evaluation

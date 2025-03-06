@@ -149,3 +149,8 @@ datasets/BridgeTrain.zip
 /Result
 /Custom/Evaluation
 /datasets/DOTA_devkit
+Custom/Scripts/evaluate_models.sh
+/Trainval
+/Custom/Evaluation
+/Result
+/tpu

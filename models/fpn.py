@@ -1,3 +1,4 @@
+# https://github.com/kuangliu/pytorch-fpn/blob/master/fpn.py
 '''FPN in PyTorch.
 
 See the paper "Feature Pyramid Networks for Object Detection" for more details.

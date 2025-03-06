@@ -5,7 +5,9 @@ import numpy as np
 import loss
 import cv2
 import func_utils
-
+from datasets.dataset_dota import DOTA
+# import torch_xla.core.xla_model as xm
+# import TestDevice.testtpu as testtpu
 
 def collater(data):
     out_data_dict = {}
@@ -25,7 +27,16 @@ class TrainModule(object):
         self.dataset_phase = {'dota': ['train'],
                               'hrsc': ['train', 'test']}
         self.num_classes = num_classes
-        self.device = torch.device("mps" if torch.backends.mps.is_available() else ("cuda:0" if torch.cuda.is_available() else "cpu"))        
+        # setting device
+        if torch.backends.mps.is_available():
+            self.device = torch.device("mps")
+        elif torch.cuda.is_available():
+            self.device = torch.device("cuda:0")
+        # elif xm.xla_device() != None:
+        #     print('Using TPU')
+        #     self.device = xm.xla_device()
+        else:
+            self.device = torch.device("cpu")
         print(self.device)
         self.model = model
         self.decoder = decoder
@@ -107,13 +118,12 @@ class TrainModule(object):
 
         dataset_module = self.dataset[args.dataset]
 
-        dsets = {x: dataset_module(data_dir=args.data_dir,
+        dsets = {x: DOTA(data_dir=args.data_dir,
                                    phase=x,
                                    input_h=args.input_h,
                                    input_w=args.input_w,
                                    down_ratio=self.down_ratio)
                  for x in self.dataset_phase[args.dataset]}
-
         dsets_loader = {}
         dsets_loader['train'] = torch.utils.data.DataLoader(dsets['train'],
                                                            batch_size=args.batch_size,
@@ -134,7 +144,7 @@ class TrainModule(object):
                                         data_loader=dsets_loader['train'],
                                         criterion=criterion)
             train_loss.append(epoch_loss)
-            self.scheduler.step(epoch)
+            self.scheduler.step()
             np.savetxt(os.path.join(save_path, 'train_loss.txt'), train_loss, fmt='%.6f')
 
             if epoch % 5 == 0 or epoch > 1:
