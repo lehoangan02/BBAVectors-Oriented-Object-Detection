@@ -701,6 +701,9 @@ class EfficientNetV2(nn.Module):
             x = block(x)
             if enum in to_be_combined:
                 features.append(x)
+        # for block in self.blocks:
+        #     x = block(x)
+        #     features.append(x)
         
         # x = self.head_act(self.head_bn(self.head_conv(x)))
         # x = self.dropout(torch.flatten(self.avpool(x), 1))
