@@ -54,7 +54,7 @@ class InputProcessor(torch.nn.Module):
 
 
 class ViTExtractor(torch.nn.Module):
-    def __init__(self, pretrained=True, freeze_backbone=True):
+    def __init__(self, pretrained=True, freeze_backbone=True, unfreeze_ratio=0.0):
         super().__init__()
 
         # Load pre-trained ViT model
@@ -79,6 +79,18 @@ class ViTExtractor(torch.nn.Module):
                 param.requires_grad = False
             for param in self.encoder.parameters():
                 param.requires_grad = False
+        elif unfreeze_ratio > 0.0:
+            # Unfreeze the last unfreeze_ratio encoder layers
+            num_layers = len(self.encoder.layers)
+            unfreeze_idx = max(0, num_layers - int(unfreeze_ratio * num_layers))
+            for i, layer in enumerate(self.encoder.layers):
+                for param in layer.parameters():
+                    param.requires_grad = i >= unfreeze_idx
+            print(f"Unfreezing the last {num_layers - unfreeze_idx} encoder layers")
+
+            # Unfreeze the feature extractor if needed
+            for param in self.feature_extractor.parameters():
+                param.requires_grad = unfreeze_ratio >= 1.0
 
         # Convolutions for multi-scale feature maps
         # 1/4 scale
