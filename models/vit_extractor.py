@@ -1,38 +1,10 @@
 import torch
 from torchvision.models import vit_b_16, ViT_B_16_Weights
-import math
 
 class InputProcessor(torch.nn.Module):
     def __init__(self, vit):
         super().__init__()
         self.vit = vit
-
-    def resize_pos_embed(self, posemb, posemb_new): # example: 224: (14*14 +1) --> 608: (38*38 +1)
-        # Rescale the grid of position embeddings when loading from state_dict. Adapted from
-        # https://github.com/google-research/vision_transformer/blob/00883dd691c63a6830751563748663526e811cee/vit_jax/checkpoint.py#L224
-        ntok_new = posemb_new.shape[1]
-        if True:
-            posemb_tok, posemb_grid = posemb[:, :1], posemb[0, 1:]  # posemb_tok is for cls token, posemb_grid for the following tokens
-            ntok_new -= 1
-        else:
-            posemb_tok, posemb_grid = posemb[:, :0], posemb[0]
-        gs_old = int(math.sqrt(len(posemb_grid)))     # 14
-        gs_new = int(math.sqrt(ntok_new))             # 38
-        # print('Position embedding grid-size from %s to %s', gs_old, gs_new)
-
-        # (1, 196, hidden_dim) --> (1, 14, 14, hidden_dim) --> (1, hidden_dim, 14, 14)
-        posemb_grid = posemb_grid.reshape(1, gs_old, gs_old, -1).permute(0, 3, 1, 2)  
-
-        # (1, hidden_dim, 14, 14) --> (1, hidden_dim, 38, 38)
-        posemb_grid = torch.nn.functional.interpolate(posemb_grid, size=(gs_new, gs_new), mode='bicubic') 
-
-        # (1, hidden_dim, 38, 38) --> (1, 38*38, hidden_dim)
-        posemb_grid = posemb_grid.permute(0, 2, 3, 1).reshape(1, gs_new * gs_new, -1)
-
-        # Concat cls token and grid position embeddings --> (1, 1 + 38*38, hidden_dim)
-        posemb = torch.cat([posemb_tok, posemb_grid], dim=1)   
-
-        return posemb
 
     def forward(self, x):
         # x is output of conv_proj with shape: (batch_size, hidden_dim, H', W')
@@ -45,13 +17,9 @@ class InputProcessor(torch.nn.Module):
         batch_class_token = self.vit.class_token.expand(n, -1, -1)
         x = torch.cat([batch_class_token, x], dim=1)
 
-        # Positional embeddings resize for different image sizes
-        posemb = self.vit.encoder.pos_embedding
-        posemb = self.resize_pos_embed(posemb, x)
-        x = x + posemb
-
+        # Positional embeddings
+        x = x + self.vit.encoder.pos_embedding
         return x
-
 
 class ViTExtractor(torch.nn.Module):
     def __init__(self, pretrained=True, freeze_backbone=True):
@@ -119,6 +87,9 @@ class ViTExtractor(torch.nn.Module):
         #                 torch.nn.init.constant_(layer.bias, 0)
     
     def forward(self, x):
+        # Scale image_size to 224
+        x = torch.nn.functional.interpolate(x, size=(224, 224), mode='bilinear', align_corners=False)
+
         # (batch_size, channels, image_size, image_size) --> (batch_size, 1 + num_patches, hidden_dim)
         x = self.feature_extractor(x)
         x = self.vit.encoder.dropout(x)
@@ -133,6 +104,9 @@ class ViTExtractor(torch.nn.Module):
         feature_map = features.reshape(batch_size, grid_size, grid_size, hidden_dim)
         feature_map = feature_map.permute(0, 3, 1, 2)  # (batch_size, hidden_dim, grid_size, grid_size)
 
+        # Scale to 38x38
+        feature_map = torch.nn.functional.interpolate(feature_map, size=(38, 38), mode='bilinear', align_corners=False)
+
         # Create feature maps
         feat = []
         feat.append(self.conv1(feature_map))
@@ -145,6 +119,6 @@ class ViTExtractor(torch.nn.Module):
 # Example usage:
 if __name__ == "__main__":
     model = ViTExtractor(pretrained=True, freeze_backbone=True)
-    dummy_input = torch.randn(1, 3, 608, 608)
+    dummy_input = torch.randn(1, 3, 224, 224)
     fmap = model(dummy_input)
     print("Feature map shape:", fmap.shape)  # Expected: (1, 768, 14, 14)
