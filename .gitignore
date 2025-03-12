@@ -155,3 +155,5 @@ Custom/Scripts/evaluate_models.sh
 /Result
 /tpu
 datasets/._Validate_DOTA_1_0.5.zip
+datasets/val_image.tar.gz
+datasets/val_label.tar.gz
