@@ -50,7 +50,7 @@ class CTRBOX_Github(nn.Module):
                 nn.init.constant_(m.bias, 0)
 
     def forward(self, x):
-        print('x:', x.shape)
+        # print('x:', x.shape)
         x = self.base_network(x)
         # for idx, layer in enumerate(x):
         #     print('layer {} shape: {}'.format(idx, layer

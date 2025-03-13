@@ -40,7 +40,7 @@ if __name__ == '__main__':
              'cls_theta': 1
              }
     down_ratio = 4
-    model = ctrbox_netV2.CTRBOX_mmsegmentationV1(heads=heads,
+    model = ctrbox_net.CTRBOX_Github(heads=heads,
                               pretrained=True,
                               down_ratio=down_ratio,
                               final_kernel=1,
