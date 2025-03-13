@@ -8,11 +8,17 @@ from .mmsegmentation.mmseg.apis import init_model
 
 config_file_V1 = './models/mmsegmentation/V1.py'
 checkpoint_file_V1 = './models/mmsegmentation/deeplabv3_r18b-d8_769x769_80k_cityscapes_20201225_094144-fdc985d9.pth'
-config_file_V2 = './models/mmsegmentation/deeplabv3_r18b-d8_4xb2-80k_cityscapes-769x769_V2.py'
-config_file_V3 = './models/mmsegmentation/deeplabv3plus_r101-d8_4xb2-80k_cityscapes-769x769.py'
+config_file_V2 = './models/mmsegmentation/V2.py'
+config_file_V3 = './models/mmsegmentation/V3.py'
 checkpoint_file_V3 = './models/mmsegmentation/deeplabv3plus_r101-d8_769x769_80k_cityscapes_20220406_154720-dfcc0b68.pth'
-config_file_V4 = './models/mmsegmentation/pspnet_r18-d8_4xb2-80k_cityscapes-769x769.py'
+config_file_V4 = './models/mmsegmentation/V4.py'
 checkpoint_file_V4 = './models/mmsegmentation/pspnet_r18-d8_769x769_80k_cityscapes_20201225_021458-3deefc62.pth'
+
+#V1 is cascading deeplabv3 and resnet152
+#V2 is using deeplabv3 as base network for feature map
+#V3 is using deeplabv3+ as base network for feature map
+#V4 is using pspnet as base network for feature map
+
 
 # seg_model = init_model(config_file, checkpoint_file, device='mps')
 if (torch.cuda.is_available()):
@@ -78,7 +84,7 @@ class CTRBOX_mmsegmentationV1(nn.Module):
         # print('x upscaled:', x.shape)
         x = self.base_network(x)
         # x = x.contiguous()
-        print('x base network:', x[-1].shape)
+        # print('x base network:', x[-1].shape)
 
         c4_combine = self.dec_c4(x[-1], x[-2])
         # c4_combine = c4_combine.contiguous()
@@ -86,7 +92,7 @@ class CTRBOX_mmsegmentationV1(nn.Module):
         # c3_combine = c3_combine.contiguous()
         c2_combine = self.dec_c2(c3_combine, x[-4])
         # c2_combine = c2_combine.contiguous()
-        print('c2_combine:', c2_combine.shape)
+        # print('c2_combine:', c2_combine.shape)
         
         dec_dict = {}
         for head in self.heads:
