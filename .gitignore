@@ -154,3 +154,6 @@ Custom/Scripts/evaluate_models.sh
 /Custom/Evaluation
 /Result
 /tpu
+/datasets/images
+datasets/val_label.tar.gz
+datasets/val_image.tar.gz
