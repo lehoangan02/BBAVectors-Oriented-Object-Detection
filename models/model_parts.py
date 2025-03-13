@@ -33,5 +33,11 @@ class CombinationModule(nn.Module):
                                            nn.ReLU(inplace=True))
 
     def forward(self, x_low, x_up):
-        x_low = self.up(F.interpolate(x_low, x_up.shape[2:], mode='bilinear', align_corners=False))
-        return self.cat_conv(torch.cat((x_up, x_low), 1))
+        # Interpolate and force contiguity on x_low
+        x_low_interp = F.interpolate(x_low, size=x_up.shape[2:], mode='bilinear', align_corners=False).contiguous()
+        # Process x_low with the up module
+        x_low_processed = self.up(x_low_interp)
+        # Ensure x_up is contiguous (if it isn’t already)
+        x_up = x_up.contiguous()
+        # Concatenate along the channel dimension and pass through cat_conv
+        return self.cat_conv(torch.cat((x_up, x_low_processed), dim=1))

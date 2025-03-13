@@ -16,7 +16,7 @@ class CTRBOX_mmsegmentationV1(nn.Module):
         channels = [3, 64, 256, 512, 1024, 2048]
         assert down_ratio in [2, 4, 8, 16]
         self.l1 = int(np.log2(down_ratio))
-        self.seg_model = init_model(config_file, checkpoint_file, device='mps')
+        self.seg_model = init_model(config_file, checkpoint_file, device='cpu')
         self.upsample = nn.Sequential(
             nn.ConvTranspose2d(3, 3, kernel_size=3, stride=2, padding=1, output_padding=1),
             nn.ReLU(),
@@ -60,16 +60,20 @@ class CTRBOX_mmsegmentationV1(nn.Module):
 
     def forward(self, x):
         # print('x:', x.shape)
-        # x = self.seg_model.forward(x, mode='tensor')
+        x = self.seg_model.forward(x, mode='tensor')
         # print('x segmented:', x.shape)
-        # x = self.upsample(x)
+        x = self.upsample(x)
         # print('x upscaled:', x.shape)
         x = self.base_network(x)
+        # x = x.contiguous()
         # print('x base network:', x[-1].shape)
 
         c4_combine = self.dec_c4(x[-1], x[-2])
+        c4_combine = c4_combine.contiguous()
         c3_combine = self.dec_c3(c4_combine, x[-3])
+        c3_combine = c3_combine.contiguous()
         c2_combine = self.dec_c2(c3_combine, x[-4])
+        c2_combine = c2_combine.contiguous()
         # print('c2_combine:', c2_combine.shape)
         
         dec_dict = {}
