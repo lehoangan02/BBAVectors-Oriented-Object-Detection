@@ -4,7 +4,7 @@ import test
 import eval
 from datasets.dataset_dota import DOTA
 from datasets.dataset_hrsc import HRSC
-from models import ctrbox_netV2
+from models import ctrbox_net_seg
 from models import ctrbox_net
 import decoder
 import os
@@ -40,7 +40,7 @@ if __name__ == '__main__':
              'cls_theta': 1
              }
     down_ratio = 4
-    model = ctrbox_netV2.CTRBOX_mmsegmentationV1(heads=heads,
+    model = ctrbox_net_seg.CTRBOX_mmsegmentationV1(heads=heads,
                               pretrained=True,
                               down_ratio=down_ratio,
                               final_kernel=1,

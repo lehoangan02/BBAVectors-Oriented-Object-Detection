@@ -147,7 +147,7 @@ class TrainModule(object):
             self.scheduler.step()
             np.savetxt(os.path.join(save_path, 'train_loss.txt'), train_loss, fmt='%.6f')
 
-            if epoch % 5 == 0 or epoch > 1:
+            if epoch % 5 == 0:
                 self.save_model(os.path.join(save_path, 'model_{}.pth'.format(epoch)),
                                 epoch,
                                 self.model,
