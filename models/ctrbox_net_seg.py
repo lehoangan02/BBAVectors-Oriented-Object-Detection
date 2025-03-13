@@ -4,9 +4,9 @@ import torch
 from .model_parts import CombinationModule
 from . import resnet
 import mmcv
-from mmsegmentation.mmseg.apis import init_model
+from .mmsegmentation.mmseg.apis import init_model
 
-config_file_V1 = './models/mmsegmentation/deeplabv3_r18b-d8_4xb2-80k_cityscapes-769x769.py'
+config_file_V1 = './models/mmsegmentation/V1.py'
 checkpoint_file_V1 = './models/mmsegmentation/deeplabv3_r18b-d8_769x769_80k_cityscapes_20201225_094144-fdc985d9.pth'
 config_file_V2 = './models/mmsegmentation/deeplabv3_r18b-d8_4xb2-80k_cityscapes-769x769_V2.py'
 config_file_V3 = './models/mmsegmentation/deeplabv3plus_r101-d8_4xb2-80k_cityscapes-769x769.py'
