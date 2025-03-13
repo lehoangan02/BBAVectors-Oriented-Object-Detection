@@ -164,6 +164,7 @@ class TrainModule(object):
                             self.optimizer)
 
     def run_epoch(self, phase, data_loader, criterion):
+        print('data_loader length:', len(data_loader))
         if phase == 'train':
             self.model.train()
         else:
