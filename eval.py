@@ -23,7 +23,10 @@ class EvalModule(object):
 
     def evaluation(self, args, down_ratio):
         save_path = 'weights_'+args.dataset
-        self.model = self.load_model(self.model, os.path.join(save_path, args.resume))
+        if args.resume == 'none':
+            self.model = self.model
+        else:
+            self.model = self.load_model(self.model, os.path.join(save_path, args.resume))
         self.model = self.model.to(self.device)
         self.model.eval()
 

@@ -22,7 +22,7 @@ def parse_args():
     parser.add_argument('--conf_thresh', type=float, default=0.1, help='Confidence threshold, 0.1 for general evaluation')
     parser.add_argument('--ngpus', type=int, default=1, help='Number of gpus, ngpus>1 for multigpu')
     parser.add_argument('--resume_train', type=str, default='', help='Weights resumed in training')
-    parser.add_argument('--resume', type=str, default='model_50.pth', help='Weights resumed in testing and evaluation')
+    parser.add_argument('--resume', type=str, default='none', help='Weights resumed in testing and evaluation')
     parser.add_argument('--dataset', type=str, default='dota', help='Name of dataset')
     parser.add_argument('--data_dir', type=str, default='../Datasets/dota', help='Data directory')
     parser.add_argument('--phase', type=str, default='eval', help='Phase choice= {train, test, eval}')
@@ -40,7 +40,7 @@ if __name__ == '__main__':
              'cls_theta': 1
              }
     down_ratio = 4
-    model = ctrbox_net_seg.CTRBOX_mmsegmentationV1(heads=heads,
+    model = ctrbox_net_seg.CTRBOX_mmsegmentationV2(heads=heads,
                               pretrained=True,
                               down_ratio=down_ratio,
                               final_kernel=1,
