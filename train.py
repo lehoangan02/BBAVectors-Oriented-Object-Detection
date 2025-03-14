@@ -158,10 +158,10 @@ class TrainModule(object):
                 ap_list.append(mAP)
                 np.savetxt(os.path.join(save_path, 'ap_list.txt'), ap_list, fmt='%.6f')
 
-            self.save_model(os.path.join(save_path, 'model_{}.pth'.format(epoch)),
-                            epoch,
-                            self.model,
-                            self.optimizer)
+            # self.save_model(os.path.join(save_path, 'model_{}.pth'.format(epoch)),
+            #                 epoch,
+            #                 self.model,
+            #                 self.optimizer)
 
     def run_epoch(self, phase, data_loader, criterion):
         if phase == 'train':
