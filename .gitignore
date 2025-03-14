@@ -161,4 +161,5 @@ datasets/val_label.tar.gz
 /seg
 /datasets/GLH_Validate
 /datasets/MiniValidateV1
+/datasets/MiniValidateV1
 datasets/MiniValidateV1.zip
