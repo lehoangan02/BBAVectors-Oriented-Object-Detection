@@ -162,3 +162,6 @@ datasets/val_image.tar.gz
 /datasets/MiniValidateV1
 Custom/Scripts/mintty.2025-03-14_17-08-57.png
 datasets/MiniValidateV1.zip
+/datasets/GLH_Validate
+/datasets/MiniValidateV1
+datasets/MiniValidateV1.zip
