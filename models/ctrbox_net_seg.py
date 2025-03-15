@@ -189,7 +189,7 @@ class CTRBOX_mmsegmentationV3(nn.Module):
     def forward(self, x):
         # print('input x:', x.shape)
         x = self.seg_model.forward(x, mode='tensor')
-        print('x segmented:', x.shape)
+        # print('x segmented:', x.shape)
         
         dec_dict = {}
         for head in self.heads:
