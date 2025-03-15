@@ -13,6 +13,9 @@ config_file_V3 = './models/mmsegmentation/V3.py'
 checkpoint_file_V3 = './models/mmsegmentation/deeplabv3plus_r101-d8_769x769_80k_cityscapes_20220406_154720-dfcc0b68.pth'
 config_file_V4 = './models/mmsegmentation/V4.py'
 checkpoint_file_V4 = './models/mmsegmentation/pspnet_r18-d8_769x769_80k_cityscapes_20201225_021458-3deefc62.pth'
+config_file_V5 = './models/mmsegmentation/V5.py'
+checkpoint_file_V5 = './models/mmsegmentation/deeplabv3plus_r18-d8_769x769_80k_cityscapes_20201226_083346-f326e06a.pth'
+#V5 mim download mim download mmsegmentation --config deeplabv3plus_r18-d8_4xb2-80k_cityscapes-769x769 --dest .
 
 #V1 is cascading deeplabv3 and resnet152
 #V2 is using deeplabv3 as base network for feature map
@@ -236,6 +239,52 @@ class CTRBOX_mmsegmentationV4(nn.Module):
         # print('input x:', x.shape)
         x = self.seg_model.forward(x, mode='tensor')
         print('x segmented:', x.shape)
+        
+        dec_dict = {}
+        for head in self.heads:
+            dec_dict[head] = self.__getattr__(head)(x)
+            if 'hm' in head or 'cls' in head:
+                dec_dict[head] = torch.sigmoid(dec_dict[head])
+        return dec_dict
+class CTRBOX_mmsegmentationV5(nn.Module):
+    def __init__(self, heads, pretrained, down_ratio, final_kernel, head_conv):
+        super().__init__()
+        channels = [3, 64, 256, 512, 1024, 2048]
+        assert down_ratio in [2, 4, 8, 16]
+        self.l1 = int(np.log2(down_ratio))
+        self.seg_model = init_model(config_file_V5, checkpoint_file_V5, device=device)
+        self.heads = heads
+
+        for head in self.heads:
+            classes = self.heads[head]
+            if head == 'wh':
+                fc = nn.Sequential(nn.Conv2d(channels[self.l1], head_conv, kernel_size=7, padding=3, bias=True),
+                                #    nn.BatchNorm2d(head_conv),   # BN not used in the paper, but would help stable training
+                                   nn.ReLU(inplace=True),
+                                   nn.Conv2d(head_conv, classes, kernel_size=7, padding=3, bias=True))
+            else:
+                fc = nn.Sequential(nn.Conv2d(channels[self.l1], head_conv, kernel_size=3, padding=1, bias=True),
+                                #    nn.BatchNorm2d(head_conv),   # BN not used in the paper, but would help stable training
+                                   nn.ReLU(inplace=True),
+                                   nn.Conv2d(head_conv, classes, kernel_size=final_kernel, stride=1, padding=final_kernel // 2, bias=True))
+            if 'hm' in head:
+                fc[-1].bias.data.fill_(-2.19)
+            else:
+                self.fill_fc_weights(fc)
+
+            self.__setattr__(head, fc)
+        # x = self.base_network()
+        # print_layers.print_layers(self)
+
+    def fill_fc_weights(self, m):
+        if isinstance(m, nn.Conv2d):
+            if m.bias is not None:
+                nn.init.constant_(m.bias, 0)
+
+    def forward(self, x):
+        # print('input x:', x.shape)
+        x = self.seg_model.forward(x, mode='tensor')
+        # print('x segmented:', x.shape)
         
         dec_dict = {}
         for head in self.heads:
