@@ -15,7 +15,7 @@ config_file_V4 = './models/mmsegmentation/V4.py'
 checkpoint_file_V4 = './models/mmsegmentation/pspnet_r18-d8_769x769_80k_cityscapes_20201225_021458-3deefc62.pth'
 config_file_V5 = './models/mmsegmentation/V5.py'
 checkpoint_file_V5 = './models/mmsegmentation/deeplabv3plus_r18-d8_769x769_80k_cityscapes_20201226_083346-f326e06a.pth'
-#V5 mim download mim download mmsegmentation --config deeplabv3plus_r18-d8_4xb2-80k_cityscapes-769x769 --dest .
+#V5: mim download mmsegmentation --config deeplabv3plus_r18-d8_4xb2-80k_cityscapes-769x769 --dest .
 
 #V1 is cascading deeplabv3 and resnet152
 #V2 is using deeplabv3 as base network for feature map

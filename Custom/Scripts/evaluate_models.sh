@@ -11,7 +11,7 @@
 # ./evaluate_models.sh
 echo "Running evaluation for all models in the model directory..."
 # Define variables
-data_dir="./datasets/MiniValidateV1"
+data_dir="./datasets/Validate_DOTA_1_0.5"
 # data_dir="./datasets/MiniTrainV1.1" # testing
 # Directory structure:
 # -|datasets
@@ -22,7 +22,7 @@ conf_thresh=0.1
 batch_size=16
 dataset="dota"
 phase="eval"
-model_dir="d975"
+model_dir="V5"
 # Directory structure:
 # -|weights_dota
 # ---| your_model_weights
@@ -31,11 +31,11 @@ model_dir="d975"
 # -----| ...
 eval_script="dota_evaluation_task1.py"
 eval_dir="datasets/DOTA_devkit"
-result_dir="Result/d975"
+result_dir="Result/V5"
 # A folder named "Result" will be created in the current directory to store the evaluation results
 
 # Array of model epochs to evaluate
-epochs=(5 10 15 20 25 30 35 40 45 50 55 60 65 70 75 80)
+epochs=(5 6 7 8 9 10)
 cd ../..
 
 # Create the result directory if it doesn't exist
