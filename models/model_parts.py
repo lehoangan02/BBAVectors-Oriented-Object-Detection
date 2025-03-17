@@ -35,3 +35,20 @@ class CombinationModule(nn.Module):
     def forward(self, x_low, x_up):
         x_low = self.up(F.interpolate(x_low, x_up.shape[2:], mode='bilinear', align_corners=False))
         return self.cat_conv(torch.cat((x_up, x_low), 1))
+class CombinationModule_Transpose(nn.Module):
+    def __init__(self, c_low, c_up):
+        super().__init__()
+        self.c_low = c_low
+        self.c_up = c_up
+        self.refine =  nn.Sequential(nn.Conv2d(c_low, c_up, kernel_size=3, padding=1, stride=1),
+                                    nn.BatchNorm2d(c_up),
+                                    nn.ReLU(inplace=True))
+        self.up = nn.Sequential(nn.ConvTranspose2d(c_low, c_low, kernel_size=2, padding=0,stride=2),
+                               nn.BatchNorm2d(c_low),
+                               nn.ReLU(inplace=True))
+        self.cat_conv =  nn.Sequential(nn.Conv2d(c_up*2, c_up, kernel_size=1, stride=1),
+                                        nn.BatchNorm2d(c_up),
+                                        nn.ReLU(inplace=True))
+    def forward(self, x_low, x_up):
+        x_low = self.refine(self.up(x_low))
+        return self.cat_conv(torch.cat((x_up, x_low), 1))
