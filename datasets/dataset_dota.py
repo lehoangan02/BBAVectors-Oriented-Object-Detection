@@ -48,8 +48,8 @@ class DOTA(BaseDataset):
         if self.phase == 'train':
             # colab: trainval.txt
             # kaggle: /kaggle/input/trainval/trainval.txt
-            image_set_index_file = "/kaggle/input/trainval/trainval.txt"
-            # image_set_index_file = os.path.join(self.data_dir, 'trainval.txt')
+            # image_set_index_file = "/kaggle/input/trainval/trainval.txt"
+            image_set_index_file = os.path.join(self.data_dir, 'trainval.txt')
         else:
             image_set_index_file = os.path.join(self.data_dir, self.phase + '.txt')
         assert os.path.exists(image_set_index_file), 'Path does not exist: {}'.format(image_set_index_file)
