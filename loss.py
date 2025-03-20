@@ -186,23 +186,19 @@ class MSE(nn.Module):
             return loss
         else:
             return 0.
-class LossAll_mse(torch.nn.Module):
+class LossAll_wh_2(torch.nn.Module):
     def __init__(self):
         super().__init__()
         self.L_hm = FocalLoss()
-        self.L_wh =  MSE()
+        self.L_wh =  OffSmoothL1Loss()
         self.L_off = OffSmoothL1Loss()
         self.L_cls_theta = BCELoss()
         self.L_corners = OffSmoothL1Loss()
 
     def forward(self, pr_decs, gt_batch):
         hm_loss  = self.L_hm(pr_decs['hm'], gt_batch['hm'])
-        wh_loss  = self.L_wh(pr_decs['wh'], gt_batch['reg_mask'], gt_batch['ind'], gt_batch['wh'])
+        wh_loss  = self.L_wh(pr_decs['wh'], gt_batch['reg_mask'], gt_batch['ind'], gt_batch['wh']) * 2
         off_loss = self.L_off(pr_decs['reg'], gt_batch['reg_mask'], gt_batch['ind'], gt_batch['reg'])
-        if 'corners' in pr_decs:
-            corners_loss = self.L_corners(pr_decs['corners'], gt_batch['reg_mask'], gt_batch['ind'], gt_batch['corners'])
-        else:
-            corners_loss = 0
         ## add
         cls_theta_loss = self.L_cls_theta(pr_decs['cls_theta'], gt_batch['reg_mask'], gt_batch['ind'], gt_batch['cls_theta'])
 
@@ -210,15 +206,15 @@ class LossAll_mse(torch.nn.Module):
             print('hm loss is {}'.format(hm_loss))
             print('wh loss is {}'.format(wh_loss))
             print('off loss is {}'.format(off_loss))
-            print('corners loss is {}'.format(corners_loss))
+            # print('corners loss is {}'.format(corners_loss))
 
-        print(f"hm_loss: {hm_loss}")
-        print(f"wh_loss: {wh_loss}")
-        print(f"off_loss: {off_loss}")
-        print(f"cls_theta_loss: {cls_theta_loss}")
-        if 'corners' in pr_decs:
-            print(f"corners_loss: {corners_loss}")
-        print('-----------------')
+        # print(f"hm_loss: {hm_loss}")
+        # print(f"wh_loss: {wh_loss}")
+        # print(f"off_loss: {off_loss}")
+        # print(f"cls_theta_loss: {cls_theta_loss}")
+        # if 'corners' in pr_decs:
+        #     print(f"corners_loss: {corners_loss}")
+        # print('-----------------')
 
-        loss =  hm_loss + wh_loss + off_loss + cls_theta_loss+corners_loss
+        loss =  hm_loss + wh_loss + off_loss + cls_theta_loss
         return loss
