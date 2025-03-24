@@ -1044,10 +1044,14 @@ class CTRBOX_EfficientNetV3(nn.Module):
 
     def forward(self, x):
         x = self.base_network(x)
+        # for idx, layer in enumerate(x):
+        #     print('layer {} shape: {}'.format(idx, layer.shape))
         c4_combine = self.dec_c4(x[-1], x[-2])
         c3_combine = self.dec_c3(c4_combine, x[-3])
         c2_combine = self.dec_c2(c3_combine, x[-4])
+        # print('c2_combine shape: ', c2_combine.shape)
         c2_combine = self.adapter_layer(c2_combine)
+        # print('c2_combine shape: ', c2_combine.shape)
         dec_dict = {}
         for head in self.heads:
             dec_dict[head] = self.__getattr__(head)(c2_combine)
