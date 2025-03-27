@@ -51,9 +51,9 @@ class CTRBOX_Github(nn.Module):
 
     def forward(self, x):
         x = self.base_network(x)
-        for idx, layer in enumerate(x):
-            print('layer {} shape: {}'.format(idx, layer
-                                              .shape))
+        # for idx, layer in enumerate(x):
+        #     print('layer {} shape: {}'.format(idx, layer
+        #                                       .shape))
         # import matplotlib.pyplot as plt
         # import os
         # for idx in range(x[1].shape[1]):
@@ -563,7 +563,7 @@ class CTRBOX_ViT(nn.Module):
         assert down_ratio in [2, 4, 8, 16]
         self.l1 = int(np.log2(down_ratio))
 
-        self.base_network = vit_extractor.ViTExtractor(pretrained=True, freeze_backbone=True)
+        self.base_network = vit_extractor.ViTExtractor(pretrained=True, freeze_backbone=False, unfreeze_ratio=1.0)
 
         self.dec_c2 = CombinationModule(512, 256, batch_norm=True)
         self.dec_c3 = CombinationModule(1024, 512, batch_norm=True)
