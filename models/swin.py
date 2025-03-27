@@ -19,40 +19,44 @@ class SwinEncoder(nn.Module):
         self.encoder = swin.features
 
         self.extract1 = nn.Sequential(
-            nn.LayerNorm(128, eps=1e-5, elementwise_affine=True),
+            nn.LayerNorm(128, eps=1e-5),
             swin.permute,
             nn.Conv2d(128, 256, kernel_size=3, stride=1, padding=1),
-            nn.BatchNorm2d(256),
+            # nn.BatchNorm2d(256),
+            nn.LayerNorm((256, 152, 152), eps=1e-5),
             nn.ReLU(inplace=True),
             nn.Conv2d(256, 256, kernel_size=1, stride=1, padding=0),
-            nn.BatchNorm2d(256)
+            # nn.BatchNorm2d(256)
         )
         self.extract2 = nn.Sequential(
-            nn.LayerNorm(256, eps=1e-5, elementwise_affine=True),
+            nn.LayerNorm(256, eps=1e-5),
             swin.permute,
             nn.Conv2d(256, 512, kernel_size=3, stride=1, padding=1),
-            nn.BatchNorm2d(512),
+            # nn.BatchNorm2d(512),
+            nn.LayerNorm((512, 76, 76), eps=1e-5),
             nn.ReLU(inplace=True),
             nn.Conv2d(512, 512, kernel_size=1, stride=1, padding=0),
-            nn.BatchNorm2d(512)
+            # nn.BatchNorm2d(512)
         )
         self.extract3 = nn.Sequential(
-            nn.LayerNorm(512, eps=1e-5, elementwise_affine=True),
+            nn.LayerNorm(512, eps=1e-5),
             swin.permute,
             nn.Conv2d(512, 1024, kernel_size=3, stride=1, padding=1),
-            nn.BatchNorm2d(1024),
+            # nn.BatchNorm2d(1024),
+            nn.LayerNorm((1024, 38, 38), eps=1e-5),
             nn.ReLU(inplace=True),
             nn.Conv2d(1024, 1024, kernel_size=1, stride=1, padding=0),
-            nn.BatchNorm2d(1024)
+            # nn.BatchNorm2d(1024)
         )
         self.extract4 = nn.Sequential(
             swin.norm,
             swin.permute,
             nn.Conv2d(1024, 2048, kernel_size=3, stride=1, padding=1),
-            nn.BatchNorm2d(2048),
+            # nn.BatchNorm2d(2048),
+            nn.LayerNorm((2048, 19, 19), eps=1e-5),
             nn.ReLU(inplace=True),
             nn.Conv2d(2048, 2048, kernel_size=1, stride=1, padding=0),
-            nn.BatchNorm2d(2048)
+            # nn.BatchNorm2d(2048)
         )
 
         # Freeze the backbone
