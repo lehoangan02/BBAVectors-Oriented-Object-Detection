@@ -139,6 +139,8 @@ class CTRBOX_Paper(nn.Module):
 class CTRBOX_152(nn.Module):
     def __init__(self, heads, pretrained, down_ratio, final_kernel, head_conv):
         super().__init__()
+        print('Using CTRBOX_152')
+        print('Hello')
         channels = [3, 64, 256, 512, 1024, 2048]
         assert down_ratio in [2, 4, 8, 16]
         self.l1 = int(np.log2(down_ratio))
@@ -177,6 +179,7 @@ class CTRBOX_152(nn.Module):
                 nn.init.constant_(m.bias, 0)
 
     def forward(self, x):
+        print('Hello')
         x = self.base_network(x)
         # for idx, layer in enumerate(x):
             # print('layer {} shape: {}'.format(idx, layer

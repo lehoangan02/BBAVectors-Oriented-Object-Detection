@@ -188,6 +188,7 @@ class MSE(nn.Module):
             return 0.
 class LossAll_wh_2(torch.nn.Module):
     def __init__(self):
+        # print('LossAll_wh_2')
         super().__init__()
         self.L_hm = FocalLoss()
         self.L_wh =  OffSmoothL1Loss()
