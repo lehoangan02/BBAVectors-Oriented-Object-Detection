@@ -2,19 +2,16 @@ import torch
 from torch import nn
 from torchvision.models import swin_t, Swin_T_Weights, swin_s, Swin_S_Weights,  swin_b, Swin_B_Weights
 
-# class InputProcessor(nn.Module):
-
-
 class SwinEncoder(nn.Module):
     def __init__(self, pretrained = True, freeze_backbone = True):
         super().__init__()
 
         # Load pre-trained Swin model
         if pretrained:
-            weights = Swin_T_Weights.IMAGENET1K_V1
+            weights = Swin_S_Weights.IMAGENET1K_V1
         else:
             weights = None
-        swin = swin_t(weights = weights, progress = True)
+        swin = swin_s(weights = weights, progress = True)
 
         self.encoder = swin.features
 
